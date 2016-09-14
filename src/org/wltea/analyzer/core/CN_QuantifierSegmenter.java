@@ -86,14 +86,14 @@ class CN_QuantifierSegmenter implements ISegmenter{
 	private int end_arabic_unit_cn;
 	private boolean matche;
 
-	private int start_arabic_count;
+	/*private int start_arabic_count;
 	private int end_arabic_count;
 
 	private int start_cnum_unit;
 	private int end_cnum_unit;
 
 	private int start_cnum_count;
-	private int end_cnum_count;
+	private int end_cnum_count;*/
 
 	//待处理的量词hit队列
 	private List<Hit> countHits;
@@ -354,7 +354,15 @@ class CN_QuantifierSegmenter implements ISegmenter{
 						}
 					}
 				}
-			} else{
+			} else {
+				//如果不是阿拉伯数字，也不是中文，说明此时需要考虑是否需要合并了
+				if(this.start_arabic_unit_cn != -1 && this.end_arabic_unit_cn != -1 &&
+						this.start_arabic_unit_num != -1 && this.end_arabic_unit_num != -1 && this.matche){
+					Lexeme newLexeme = new Lexeme(context.getBufferOffset() ,
+							this.start_arabic_unit_num , this.end_arabic_unit_cn - this.start_arabic_unit_num + 1 ,
+							Lexeme.TYPE_ARABIC_COUNT);
+					context.addLexeme(newLexeme);
+				}
 				this.start_arabic_unit_cn = -1;
 				this.end_arabic_unit_cn = -1;
 				this.start_arabic_unit_num = -1;
