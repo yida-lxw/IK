@@ -1,7 +1,8 @@
-package org.wltea.analyzer.utils;
+package org.wltea.analyzer.sample;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.wltea.analyzer.pinyin.lucene.PinyinAnalyzer;
+import org.wltea.analyzer.utils.AnalyzerUtils;
 
 import java.io.IOException;
 
