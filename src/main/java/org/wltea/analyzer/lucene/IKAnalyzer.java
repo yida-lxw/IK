@@ -28,7 +28,7 @@ import org.apache.lucene.analysis.Tokenizer;
 
 /**
  * IK分词器 Lucene Analyzer实现
- * 兼容Lucene 5.x版本
+ * 兼容Lucene 6.x版本
  */
 public final class IKAnalyzer extends Analyzer {
 
