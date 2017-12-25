@@ -389,6 +389,7 @@ class AnalyzeContext {
         if (!this.cfg.useSmart()) {
             return;
         }
+        LinkedList<Lexeme> tempResults = new LinkedList<Lexeme>(this.results);
         do {
             //如果下一个词既不是阿拉伯数字，也不是中文数字，那么数字合并结束
             if (Lexeme.TYPE_ARABIC != result.getLexemeType() &&
@@ -397,7 +398,7 @@ class AnalyzeContext {
             }
             //当前词是阿拉伯数字
             if (Lexeme.TYPE_ARABIC == result.getLexemeType()) {
-                Lexeme nextLexeme = this.results.peekFirst();
+                Lexeme nextLexeme = tempResults.peekFirst();
                 boolean appendOk = false;
                 //中文十进制
                 if (Lexeme.TYPE_DENARY == nextLexeme.getLexemeType()) {
@@ -426,14 +427,15 @@ class AnalyzeContext {
                     //合并数字+数字
                     appendOk = result.append(nextLexeme, Lexeme.TYPE_ARABIC);
                 }
-                if (appendOk) {
+                /*if (appendOk) {
                     //弹出
                     this.results.pollFirst();
-                }
+                }*/
+                tempResults.pollFirst();
             }
             //如果当前词是中文数字
             else if (Lexeme.TYPE_CNUM == result.getLexemeType()) {
-                Lexeme nextLexeme = this.results.peekFirst();
+                Lexeme nextLexeme = tempResults.peekFirst();
                 boolean appendOk = false;
                 //中文十进制
                 if (Lexeme.TYPE_DENARY == nextLexeme.getLexemeType()) {
@@ -451,12 +453,13 @@ class AnalyzeContext {
                         appendOk = result.append(nextLexeme, Lexeme.TYPE_CNUM_COUNT);
                     }
                 }
-                if (appendOk) {
+                /*if (appendOk) {
                     //弹出
                     this.results.pollFirst();
-                }
+                }*/
+                tempResults.pollFirst();
             }
-        } while (!this.results.isEmpty());
+        } while (!tempResults.isEmpty());
     }
 
     //获取上一个匹配词

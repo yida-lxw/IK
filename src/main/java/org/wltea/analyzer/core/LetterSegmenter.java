@@ -85,6 +85,7 @@ class LetterSegmenter implements ISegmenter {
         this.arabicEnd = -1;
     }
 
+    @Override
     public void analyze(AnalyzeContext context) {
         boolean bufferLockFlag = false;
         //处理英文字母
@@ -103,6 +104,7 @@ class LetterSegmenter implements ISegmenter {
         }
     }
 
+    @Override
     public void reset() {
         this.start = -1;
         this.end = -1;
@@ -152,7 +154,6 @@ class LetterSegmenter implements ISegmenter {
             if (this.start != -1 && this.end != -1) {
                 Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
                 context.addLexeme(newLexeme);
-                //context.addLexeme(new Lexeme(context.getBufferOffset() , this.start , this.end - this.start + 1 , Lexeme.TYPE_LETTER));
                 this.start = -1;
                 this.end = -1;
             }

@@ -100,10 +100,11 @@ public final class IKSegmenter {
         segmenters.add(new LetterSegmenter());
         //处理英文单位的子分词器
         segmenters.add(new EN_UnitSegmenter());
-        //处理中文数量词的子分词器
-        segmenters.add(new CN_QuantifierSegmenter());
         //处理中文词语的子分词器
         segmenters.add(new CJKSegmenter());
+        //处理中文数量词的子分词器
+        segmenters.add(new CN_QuantifierSegmenter());
+
         return segmenters;
     }
 

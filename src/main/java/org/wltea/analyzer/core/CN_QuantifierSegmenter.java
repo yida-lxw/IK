@@ -116,6 +116,7 @@ class CN_QuantifierSegmenter implements ISegmenter {
     /**
      * 分词
      */
+    @Override
     public void analyze(AnalyzeContext context) {
         //处理中文十进制
         this.processDenary(context);
@@ -141,6 +142,7 @@ class CN_QuantifierSegmenter implements ISegmenter {
     /**
      * 重置子分词器状态
      */
+    @Override
     public void reset() {
         nStart = -1;
         nEnd = -1;
@@ -229,43 +231,7 @@ class CN_QuantifierSegmenter implements ISegmenter {
         }
 
         if (CharacterUtil.CHAR_CHINESE == context.getCurrentCharType()) {
-            //优先处理countHits中的hit
-            if (!this.countHits.isEmpty()) {
-                //处理词段队列
-                Hit[] tmpArray = this.countHits.toArray(new Hit[this.countHits.size()]);
-                for (Hit hit : tmpArray) {
-                    hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
-                    if (hit.isMatch()) {
-                        //输出当前的词
-                        Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_COUNT);
-                        context.addLexeme(newLexeme);
-                        if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
-                            this.countHits.remove(hit);
-                        }
-                    } else if (hit.isUnmatch()) {
-                        //hit不是词，移除
-                        this.countHits.remove(hit);
-                    }
-                }
-            }
-
-            //*********************************
-            //对当前指针位置的字符进行单字匹配
-            Hit singleCharHit = Dictionary.getSingleton().matchInQuantifierDict(context.getSegmentBuff(), context.getCursor(), 1);
-            if (singleCharHit.isMatch()) {//首字成量词词
-                //输出当前的词
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), context.getCursor(), 1, Lexeme.TYPE_COUNT);
-                context.addLexeme(newLexeme);
-
-                //同时也是词前缀
-                if (singleCharHit.isPrefix()) {
-                    //前缀匹配则放入hit列表
-                    this.countHits.add(singleCharHit);
-                }
-            } else if (singleCharHit.isPrefix()) {//首字为量词前缀
-                //前缀匹配则放入hit列表
-                this.countHits.add(singleCharHit);
-            }
+            handleCountHits(context, false);
         } else {
             //输入的不是中文字符
             //清空未成形的量词
@@ -275,6 +241,50 @@ class CN_QuantifierSegmenter implements ISegmenter {
         //缓冲区数据已经读完，还有尚未输出的量词
         if (context.isBufferConsumed()) {
             //清空未成形的量词
+            handleCountHits(context, true);
+            //this.countHits.clear();
+        }
+    }
+
+    private void handleCountHits(AnalyzeContext context, boolean end) {
+        //优先处理countHits中的hit
+        if (!this.countHits.isEmpty()) {
+            //处理词段队列
+            Hit[] tmpArray = this.countHits.toArray(new Hit[this.countHits.size()]);
+            for (Hit hit : tmpArray) {
+                hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
+                if (hit.isMatch()) {
+                    //输出当前的词
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_COUNT);
+                    context.addLexeme(newLexeme);
+                    if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
+                        this.countHits.remove(hit);
+                    }
+                } else if (hit.isUnmatch()) {
+                    //hit不是词，移除
+                    this.countHits.remove(hit);
+                }
+            }
+        }
+
+        //*********************************
+        //对当前指针位置的字符进行单字匹配
+        Hit singleCharHit = Dictionary.getSingleton().matchInQuantifierDict(context.getSegmentBuff(), context.getCursor(), 1);
+        if (singleCharHit.isMatch()) {//首字成量词词
+            //输出当前的词
+            Lexeme newLexeme = new Lexeme(context.getBufferOffset(), context.getCursor(), 1, Lexeme.TYPE_COUNT);
+            context.addLexeme(newLexeme);
+
+            //同时也是词前缀
+            if (singleCharHit.isPrefix()) {
+                //前缀匹配则放入hit列表
+                this.countHits.add(singleCharHit);
+            }
+        } else if (singleCharHit.isPrefix()) {//首字为量词前缀
+            //前缀匹配则放入hit列表
+            this.countHits.add(singleCharHit);
+        }
+        if (end) {
             this.countHits.clear();
         }
     }

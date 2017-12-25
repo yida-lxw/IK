@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <lucene.version>6.2.1</lucene.version>
+        <lucene.version>7.1.0</lucene.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
     </properties>
 

@@ -99,6 +99,7 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
          * 起始位置偏移、起始位置、终止位置相同
          * @see java.lang.Object#equals(Object o)
          */
+    @Override
     public boolean equals(Object o) {
         if (o == null) {
             return false;
@@ -126,6 +127,7 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
      * 词元哈希编码算法
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         int absBegin = getBeginPosition();
         int absEnd = getEndPosition();
@@ -136,6 +138,7 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
      * 词元在排序集合中的比较算法
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(Lexeme other) {
         //起始位置优先
         if (this.begin < other.getBegin()) {
