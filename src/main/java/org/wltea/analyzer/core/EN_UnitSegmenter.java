@@ -220,10 +220,11 @@ class EN_UnitSegmenter implements ISegmenter {
      */
     private void outputEnUnitLexeme(AnalyzeContext context) {
         if (nStart > -1 && nEnd > -1) {
-            //输出英文单位
-            Lexeme newLexeme = new Lexeme(context.getBufferOffset(), nStart, nEnd - nStart + 1, Lexeme.TYPE_EN_UNIT);
-            context.addLexeme(newLexeme);
-
+            if (nEnd >= nStart) {
+                //输出英文单位
+                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), nStart, nEnd - nStart + 1, Lexeme.TYPE_EN_UNIT);
+                context.addLexeme(newLexeme);
+            }
         }
     }
 }

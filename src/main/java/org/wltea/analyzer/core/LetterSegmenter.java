@@ -141,9 +141,11 @@ class LetterSegmenter implements ISegmenter {
                 //记录下可能的结束位置
                 this.end = context.getCursor();
             } else {
-                //遇到非Letter字符，输出词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
-                context.addLexeme(newLexeme);
+                if (this.end >= this.start) {
+                    //遇到非Letter字符，输出词元
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
+                    context.addLexeme(newLexeme);
+                }
                 this.start = -1;
                 this.end = -1;
             }
@@ -152,8 +154,11 @@ class LetterSegmenter implements ISegmenter {
         //判断缓冲区是否已经读完
         if (context.isBufferConsumed()) {
             if (this.start != -1 && this.end != -1) {
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
-                context.addLexeme(newLexeme);
+                if (this.end >= this.start) {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.start, this.end - this.start + 1, Lexeme.TYPE_LETTER);
+                    context.addLexeme(newLexeme);
+                }
+
                 this.start = -1;
                 this.end = -1;
             }
@@ -188,9 +193,11 @@ class LetterSegmenter implements ISegmenter {
                 //记录当前指针位置为结束位置
                 this.englishEnd = context.getCursor();
             } else {
-                //遇到非English字符,输出词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.englishStart, this.englishEnd - this.englishStart + 1, Lexeme.TYPE_ENGLISH);
-                context.addLexeme(newLexeme);
+                if (this.englishEnd >= this.englishStart) {
+                    //遇到非English字符,输出词元
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.englishStart, this.englishEnd - this.englishStart + 1, Lexeme.TYPE_ENGLISH);
+                    context.addLexeme(newLexeme);
+                }
                 this.englishStart = -1;
                 this.englishEnd = -1;
             }
@@ -207,8 +214,10 @@ class LetterSegmenter implements ISegmenter {
                 } else {
                     lexemeType = Lexeme.TYPE_ENGLISH;
                 }
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.englishStart, this.englishEnd - this.englishStart + 1, lexemeType);
-                context.addLexeme(newLexeme);
+                if (this.englishEnd >= this.englishStart) {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.englishStart, this.englishEnd - this.englishStart + 1, lexemeType);
+                    context.addLexeme(newLexeme);
+                }
                 this.englishStart = -1;
                 this.englishEnd = -1;
             }
@@ -244,10 +253,13 @@ class LetterSegmenter implements ISegmenter {
                 this.arabicEnd = context.getCursor();
             } else if (CharacterUtil.CHAR_USELESS != context.getCurrentCharType()
                     || !this.isNumConnector(context.getCurrentChar())) {
-                //不输出数字，但不标记结束
-                //遇到非Arabic字符,输出词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
-                context.addLexeme(newLexeme);
+                if (this.arabicEnd >= this.arabicStart) {
+                    //不输出数字，但不标记结束
+                    //遇到非Arabic字符,输出词元
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
+                    context.addLexeme(newLexeme);
+                }
+
                 this.arabicStart = -1;
                 this.arabicEnd = -1;
             }
@@ -256,9 +268,11 @@ class LetterSegmenter implements ISegmenter {
         //判断缓冲区是否已经读完
         if (context.isBufferConsumed()) {
             if (this.arabicStart != -1 && this.arabicEnd != -1) {
-                //生成已切分的词元
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
-                context.addLexeme(newLexeme);
+                if (this.arabicEnd >= this.arabicStart) {
+                    //生成已切分的词元
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), this.arabicStart, this.arabicEnd - this.arabicStart + 1, Lexeme.TYPE_ARABIC);
+                    context.addLexeme(newLexeme);
+                }
                 this.arabicStart = -1;
                 this.arabicEnd = -1;
             }

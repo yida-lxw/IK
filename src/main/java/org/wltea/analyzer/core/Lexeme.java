@@ -88,7 +88,8 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
         this.offset = offset;
         this.begin = begin;
         if (length < 0) {
-            throw new IllegalArgumentException("length < 0");
+            throw new IllegalArgumentException("length < 0，the lexemeText:{" + this.lexemeText + "}," +
+                    "offset:{" + offset + "},begin:{" + begin + "},length:{" + length + "}");
         }
         this.length = length;
         this.lexemeType = lexemeType;

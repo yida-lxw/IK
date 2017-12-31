@@ -254,9 +254,11 @@ class CN_QuantifierSegmenter implements ISegmenter {
             for (Hit hit : tmpArray) {
                 hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
                 if (hit.isMatch()) {
-                    //输出当前的词
-                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_COUNT);
-                    context.addLexeme(newLexeme);
+                    if (context.getCursor() >= hit.getBegin()) {
+                        //输出当前的词
+                        Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_COUNT);
+                        context.addLexeme(newLexeme);
+                    }
                     if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
                         this.countHits.remove(hit);
                     }
@@ -350,10 +352,12 @@ class CN_QuantifierSegmenter implements ISegmenter {
                         //既不是中文单位，也不是中文单位的前缀，那么说明不需要组合
                         if (!singleCharHit.isMatch() && !singleCharHit.isPrefix()) {
                             if (this.matche) {
-                                Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
-                                        this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num,
-                                        Lexeme.TYPE_ARABIC_COUNT);
-                                context.addLexeme(newLexeme);
+                                if (this.end_arabic_unit_cn > this.start_arabic_unit_num) {
+                                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
+                                            this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num,
+                                            Lexeme.TYPE_ARABIC_COUNT);
+                                    context.addLexeme(newLexeme);
+                                }
                             }
                             this.start_arabic_unit_cn = -1;
                             this.end_arabic_unit_cn = -1;
@@ -368,10 +372,12 @@ class CN_QuantifierSegmenter implements ISegmenter {
                 //如果不是阿拉伯数字，也不是中文，说明此时需要考虑是否需要合并了
                 if (this.start_arabic_unit_cn != -1 && this.end_arabic_unit_cn != -1 &&
                         this.start_arabic_unit_num != -1 && this.end_arabic_unit_num != -1 && this.matche) {
-                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
-                            this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num + 1,
-                            Lexeme.TYPE_ARABIC_COUNT);
-                    context.addLexeme(newLexeme);
+                    if (this.end_arabic_unit_cn >= this.start_arabic_unit_num) {
+                        Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
+                                this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num + 1,
+                                Lexeme.TYPE_ARABIC_COUNT);
+                        context.addLexeme(newLexeme);
+                    }
                 }
                 this.start_arabic_unit_cn = -1;
                 this.end_arabic_unit_cn = -1;
@@ -384,10 +390,12 @@ class CN_QuantifierSegmenter implements ISegmenter {
         if (context.isBufferConsumed()) {
             if (this.start_arabic_unit_cn != -1 && this.end_arabic_unit_cn != -1 &&
                     this.start_arabic_unit_num != -1 && this.end_arabic_unit_num != -1 && this.matche) {
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
-                        this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num + 1,
-                        Lexeme.TYPE_ARABIC_COUNT);
-                context.addLexeme(newLexeme);
+                if (this.end_arabic_unit_cn >= this.start_arabic_unit_num) {
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(),
+                            this.start_arabic_unit_num, this.end_arabic_unit_cn - this.start_arabic_unit_num + 1,
+                            Lexeme.TYPE_ARABIC_COUNT);
+                    context.addLexeme(newLexeme);
+                }
                 this.start_arabic_unit_cn = -1;
                 this.end_arabic_unit_cn = -1;
                 this.start_arabic_unit_num = -1;
@@ -444,10 +452,11 @@ class CN_QuantifierSegmenter implements ISegmenter {
      */
     private void outputChineseNumLexeme(AnalyzeContext context) {
         if (nStart > -1 && nEnd > -1) {
-            //输出中文数字
-            Lexeme newLexeme = new Lexeme(context.getBufferOffset(), nStart, nEnd - nStart + 1, Lexeme.TYPE_CNUM);
-            context.addLexeme(newLexeme);
-
+            if (nEnd >= nStart) {
+                //输出中文数字
+                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), nStart, nEnd - nStart + 1, Lexeme.TYPE_CNUM);
+                context.addLexeme(newLexeme);
+            }
         }
     }
 
@@ -457,9 +466,11 @@ class CN_QuantifierSegmenter implements ISegmenter {
      */
     private void outputDenaryLexeme(AnalyzeContext context) {
         if (dnStart > -1 && dnEnd > -1) {
-            //输出中文十进制
-            Lexeme newLexeme = new Lexeme(context.getBufferOffset(), dnStart, dnEnd - dnStart + 1, Lexeme.TYPE_DENARY);
-            context.addLexeme(newLexeme);
+            if (dnEnd >= dnStart) {
+                //输出中文十进制
+                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), dnStart, dnEnd - dnStart + 1, Lexeme.TYPE_DENARY);
+                context.addLexeme(newLexeme);
+            }
         }
     }
 }

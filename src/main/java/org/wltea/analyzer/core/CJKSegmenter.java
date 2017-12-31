@@ -100,9 +100,11 @@ class CJKSegmenter implements ISegmenter {
             for (Hit hit : tmpArray) {
                 hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
                 if (hit.isMatch()) {
-                    //输出当前的词
-                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_CNWORD);
-                    context.addLexeme(newLexeme);
+                    if (context.getCursor() >= hit.getBegin()) {
+                        //输出当前的词
+                        Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_CNWORD);
+                        context.addLexeme(newLexeme);
+                    }
 
                     if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
                         this.tmpHits.remove(hit);
