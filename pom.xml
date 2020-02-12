@@ -21,7 +21,7 @@
     </build>
 
     <properties>
-        <lucene.version>7.1.0</lucene.version>
+        <lucene.version>8.4.0</lucene.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
     </properties>
 
