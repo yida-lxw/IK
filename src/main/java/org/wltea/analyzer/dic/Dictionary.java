@@ -31,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 
@@ -222,35 +223,13 @@ public class Dictionary {
         _MainDict = new DictSegment((char) 0);
         //读取主词典文件
         String mainDictPath = cfg.getMainDictionary();
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream(mainDictPath);
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(mainDictPath);
         String mainDictName = getDicFileName(mainDictPath);
-        if (is == null) {
+
+        if (inputStream == null) {
             throw new RuntimeException("Main Dictionary:{" + mainDictName + "} not found!!!");
         }
-
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, DEFAULT_CHARSET), BUFFER_SIZE);
-            log.info("加载主词典:" + mainDictName);
-            String theWord = null;
-            do {
-                theWord = bufferedReader.readLine();
-                if (theWord != null && !"".equals(theWord.trim())) {
-                    _MainDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-                }
-            } while (theWord != null);
-
-        } catch (IOException ioe) {
-            log.error("Loading Main Dictionary occur exception.");
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                    is = null;
-                }
-            } catch (IOException e) {
-                log.error("[loadMainDict]Closing InputStream occur exception.");
-            }
-        }
+        readDict(inputStream, _MainDict, "主词典", mainDictName);
         //加载扩展词典
         this.loadExtDict();
     }
@@ -262,38 +241,16 @@ public class Dictionary {
         //加载扩展词典配置
         List<String> extDictFiles = cfg.getExtDictionarys();
         if (extDictFiles != null) {
-            InputStream is = null;
+            InputStream inputStream = null;
             for (String extDictName : extDictFiles) {
                 //读取扩展词典文件
                 log.info("加载扩展词典:" + extDictName);
-                is = this.getClass().getClassLoader().getResourceAsStream(extDictName);
+                inputStream = this.getClass().getClassLoader().getResourceAsStream(extDictName);
                 //如果找不到扩展的字典，则忽略
-                if (is == null) {
+                if (inputStream == null) {
                     continue;
                 }
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, DEFAULT_CHARSET),  BUFFER_SIZE);
-                    String theWord = null;
-                    do {
-                        theWord = bufferedReader.readLine();
-                        if (theWord != null && !"".equals(theWord.trim())) {
-                            //加载扩展词典数据到主内存词典中
-                            _MainDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-                        }
-                    } while (theWord != null);
-
-                } catch (IOException ioe) {
-                    log.error("Loading Extension Dictionary occur exception.");
-                } finally {
-                    try {
-                        if (is != null) {
-                            is.close();
-                            is = null;
-                        }
-                    } catch (IOException e) {
-                        log.error("[loadExtDict]Closing InputStream occur exception.");
-                    }
-                }
+                readDict(inputStream, _MainDict, "扩展词典", extDictName);
             }
         }
     }
@@ -316,29 +273,7 @@ public class Dictionary {
                 if (inputStream == null) {
                     continue;
                 }
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CHARSET), BUFFER_SIZE);
-                    String theWord = null;
-                    do {
-                        theWord = bufferedReader.readLine();
-                        if (theWord != null && !"".equals(theWord.trim())) {
-                            //加载扩展停止词典数据到内存中
-                            _StopWordDict.fillSegment(theWord.trim().toLowerCase().toCharArray());
-                        }
-                    } while (theWord != null);
-
-                } catch (IOException ioe) {
-                    log.error("[loadStopWordDict]Loading Extension Stop word Dictionary occur exception.");
-                } finally {
-                    try {
-                        if (inputStream != null) {
-                            inputStream.close();
-                            inputStream = null;
-                        }
-                    } catch (IOException e) {
-                        log.error("[loadStopWordDict]Closing InputStream occur exception.");
-                    }
-                }
+                readDict(inputStream, _StopWordDict, "扩展停用词词典", extStopWordDictName);
             }
         }
     }
@@ -358,9 +293,21 @@ public class Dictionary {
         if (inputStream == null) {
             throw new RuntimeException("自定义词典:{" + dicFileName + "} not found!!!");
         }
+        readDict(inputStream, dictSegment, "自定义词典", dicFileName);
+        return dictSegment;
+    }
+
+    /**
+     * 读取词典文件到词典树中
+     *
+     * @param inputStream          文件输入流
+     * @param dictSegment 词典树分段
+     * @throws IOException 读取异常
+     */
+    private void readDict(InputStream inputStream, DictSegment dictSegment, String dictFileName, String dictNameCN) {
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_CHARSET), BUFFER_SIZE);
-            log.info("加载自定义词典：" + dicFileName);
+            log.info("加载" + dictNameCN + "：" + dictFileName);
             String theWord = null;
             do {
                 theWord = bufferedReader.readLine();
@@ -368,20 +315,22 @@ public class Dictionary {
                     dictSegment.fillSegment(theWord.trim().toLowerCase().toCharArray());
                 }
             } while (theWord != null);
-
-        } catch (IOException ioe) {
-            log.error("Loading " + dicFileName + " occur exception.");
+        } catch (Exception e) {
+            log.error("Loading [" + dictFileName + "] occur exception.");
         } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                    inputStream = null;
-                }
-            } catch (IOException e) {
-                log.error("[loadCustomDict]Closing InputStream occur exception.");
-            }
+            closeInputStream(inputStream);
         }
-        return dictSegment;
+    }
+
+    private void closeInputStream(InputStream inputStream) {
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+                inputStream = null;
+            }
+        } catch (IOException e) {
+            log.error("Closing InputStream occur exception.");
+        }
     }
 
     //获取字典文件的文件名称

@@ -40,11 +40,11 @@ public class DefaultConfig implements Configuration {
     /*
      * 分词器默认字典路径
      */
-    private static final String PATH_DIC_MAIN = "org.wltea.analyzer.dic/main2012.dic";
-    private static final String PATH_DIC_QUANTIFIER = "org.wltea.analyzer.dic/quantifier.dic";
+    private static final String PATH_DIC_MAIN = "config/main2012.dic";
+    private static final String PATH_DIC_QUANTIFIER = "config/quantifier.dic";
 
     //英文单位字典文件加载路径
-    private static final String PATH_DIC_EN_UNIT = "org.wltea.analyzer.dic/en_unit.dic";
+    private static final String PATH_DIC_EN_UNIT = "config/en_unit.dic";
 
     /*
      * 分词器配置文件路径
