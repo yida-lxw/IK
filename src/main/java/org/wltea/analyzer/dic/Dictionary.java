@@ -399,7 +399,7 @@ public class Dictionary {
     }
 
     public DictSegment getStopWordDict() {
-        return this._MainDictAtomicReference.get();
+        return this._StopWordDictAtomicReference.get();
     }
 
     public DictSegment getQuantifierDict() {
