@@ -23,9 +23,8 @@
  */
 package org.wltea.analyzer.cfg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wltea.analyzer.dic.Dictionary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +39,7 @@ import java.util.Properties;
  *
  */
 public class DefaultConfig implements Configuration {
-    private static final Logger log = LoggerFactory.getLogger(DefaultConfig.class);
+    private static final Logger log = LogManager.getLogger(DefaultConfig.class);
 
     /**远程扩展词典自动刷新的时间间隔,单位：秒,默认值为60*/
     public static final long DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL = 60L;

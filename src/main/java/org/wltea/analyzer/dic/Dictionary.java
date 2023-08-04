@@ -23,8 +23,8 @@
  */
 package org.wltea.analyzer.dic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wltea.analyzer.cfg.Configuration;
 
 import java.io.BufferedReader;
@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 词典管理类,单子模式
  */
 public class Dictionary {
-    private static final Logger log = LoggerFactory.getLogger(Dictionary.class);
+    private static final Logger log = LogManager.getLogger(Dictionary.class);
 
     /**定时更新IK词库的线程池*/
     private static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
