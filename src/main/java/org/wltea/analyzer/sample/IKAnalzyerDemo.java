@@ -42,12 +42,12 @@ public class IKAnalzyerDemo {
 
     public static void main(String[] args) {
         //构建IK分词器
-        Analyzer analyzer = new IKAnalyzer(true);
+        Analyzer analyzer = new IKAnalyzer(false);
 
         //获取Lucene的TokenStream对象
         TokenStream ts = null;
         try {
-            ts = analyzer.tokenStream("myfield", new StringReader("T450 SKU-112 80KG 365天 八小时 联想2000 粤TB01235"));
+            ts = analyzer.tokenStream("myfield", new StringReader("政治传记关于曹家沟道路规则调整的批复T450 SKU-112 80KG 365天 八小时 联想2000 粤TB01235"));
             //获取词元位置属性
             OffsetAttribute offset = ts.addAttribute(OffsetAttribute.class);
             //获取词元文本属性

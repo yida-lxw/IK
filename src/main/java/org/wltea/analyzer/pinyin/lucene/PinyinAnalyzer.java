@@ -79,7 +79,7 @@ public class PinyinAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Reader reader = new BufferedReader(new StringReader(fieldName));
+        //Reader reader = new BufferedReader(new StringReader(fieldName));
         Tokenizer tokenizer = new IKTokenizer(useSmart);
         //转拼音
         TokenStream tokenStream = new PinyinTokenFilter(tokenizer,
