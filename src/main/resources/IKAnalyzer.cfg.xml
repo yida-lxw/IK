@@ -8,4 +8,13 @@
     <!--用户可以在这里配置自己的扩展停止词字典-->
     <entry key="ext_stopwords">stopword.dic;</entry>
 
+    <!--用户可以在这里配置远程扩展字典 -->
+    <!--是否启用远程扩展词典,可选值：true/yes/on/ok/1 -->
+    <!-- <entry key="enable_remote_dict">false</entry> -->
+    <!--远程扩展词典自动刷新的时间间隔,单位：秒,若不配置此配置项或配置项值留空不填，则默认值为60 -->
+    <!-- <entry key="remote_ext_dict_refresh_interval">60</entry> -->
+    <!--远程扩展词词典的URL地址 -->
+    <!-- <entry key="remote_ext_dict">words_location</entry> -->
+    <!--远程扩展停用词词典的URL地址-->
+    <!-- <entry key="remote_ext_stopwords">words_location</entry> -->
 </properties>

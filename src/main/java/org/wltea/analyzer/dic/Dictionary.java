@@ -23,23 +23,29 @@
  */
 package org.wltea.analyzer.dic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wltea.analyzer.cfg.Configuration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 词典管理类,单子模式
  */
 public class Dictionary {
-    private static final Log log = LogFactory.getLog(Dictionary.class);
+    private static final Logger log = LoggerFactory.getLogger(Dictionary.class);
+
+    /**定时更新IK词库的线程池*/
+    private static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
 
     private static final int BUFFER_SIZE = 2048;
 
@@ -48,24 +54,24 @@ public class Dictionary {
     /*
      * 词典单子实例
      */
-    private static Dictionary singleton;
+    private static volatile Dictionary singleton;
 
     /*
      * 主词典对象
      */
-    private DictSegment _MainDict;
+    private AtomicReference<DictSegment> _MainDictAtomicReference;
 
     /*
      * 停止词词典
      */
-    private DictSegment _StopWordDict;
+    private AtomicReference<DictSegment> _StopWordDictAtomicReference;
     /*
      * 中文量词词典
      */
-    private DictSegment _QuantifierDict;
+    private AtomicReference<DictSegment> _QuantifierDictAtomicReference;
 
     //英文单位词典
-    private DictSegment _EN_UNIT_Dict;
+    private AtomicReference<DictSegment> _EnUnitDictAtomicReference;
 
     /**
      * 配置对象
@@ -73,15 +79,32 @@ public class Dictionary {
     private Configuration cfg;
 
     private Dictionary(Configuration cfg) {
+        //初始化字典有关的原子变量
+        _MainDictAtomicReference = new AtomicReference<>();
+        _StopWordDictAtomicReference = new AtomicReference<>();
+        _QuantifierDictAtomicReference = new AtomicReference<>();
+        _EnUnitDictAtomicReference = new AtomicReference<>();
+
+        cfg.setEnableRemoteDict();
+        cfg.setRemoteExtDictRefreshInterval();
         this.cfg = cfg;
+        loadAllDicts(this);
+    }
+
+    /**
+     * 加载IK分词器的所有词典文件
+     */
+    private void loadAllDicts(Dictionary dictionary) {
         //加载主扩展词库词典文件
-        this.loadMainDict();
+        dictionary.loadMainDict();
         //加载停用词词典文件
-        this.loadStopWordDict();
+        dictionary.loadStopWordDict();
+        _MainDictAtomicReference.set(dictionary._MainDictAtomicReference.get());
+        this._StopWordDictAtomicReference.set(dictionary.getStopWordDict());
         //加载英文单位词典文件
-        _EN_UNIT_Dict = this.loadCustomDict(this.cfg.getEnglishUnitDicionary(), _EN_UNIT_Dict);
+        this._EnUnitDictAtomicReference.set(dictionary.loadCustomDict(dictionary.cfg.getEnglishUnitDicionary(), dictionary.getEnUnitDict()));
         //加载中文量词词典文件
-        _QuantifierDict = this.loadCustomDict(this.cfg.getQuantifierDicionary(), _QuantifierDict);
+        this._QuantifierDictAtomicReference.set(dictionary.loadCustomDict(dictionary.cfg.getQuantifierDicionary(), dictionary.getQuantifierDict()));
     }
 
     /**
@@ -97,6 +120,17 @@ public class Dictionary {
             synchronized (Dictionary.class) {
                 if (singleton == null) {
                     singleton = new Dictionary(cfg);
+                    if(cfg.enableRemoteDict()) {
+                        long remoteExtDictRefreshInterval = cfg.remoteExtDictRefreshInterval();
+                        // 建立监控线程
+                        for (String location : cfg.getRemoteExtDictionarys()) {
+                            // 10 秒是初始延迟， 60是间隔时间，单位秒
+                            threadPool.scheduleAtFixedRate(new Monitor(location), 10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
+                        }
+                        for (String location : cfg.getRemoteExtStopWordDictionarys()) {
+                            threadPool.scheduleAtFixedRate(new Monitor(location), 10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
+                        }
+                    }
                     return singleton;
                 }
             }
@@ -124,7 +158,7 @@ public class Dictionary {
             for (String word : words) {
                 if (word != null) {
                     //批量加载词条到主内存词典中
-                    singleton._MainDict.fillSegment(word.trim().toLowerCase().toCharArray());
+                    singleton.getMainDict().fillSegment(word.trim().toLowerCase().toCharArray());
                 }
             }
         }
@@ -139,7 +173,7 @@ public class Dictionary {
             for (String word : words) {
                 if (word != null) {
                     //批量屏蔽词条
-                    singleton._MainDict.disableSegment(word.trim().toLowerCase().toCharArray());
+                    singleton.getMainDict().disableSegment(word.trim().toLowerCase().toCharArray());
                 }
             }
         }
@@ -151,7 +185,7 @@ public class Dictionary {
      * @return Hit 匹配结果描述
      */
     public Hit matchInMainDict(char[] charArray) {
-        return singleton._MainDict.match(charArray);
+        return singleton.getMainDict().match(charArray);
     }
 
     /**
@@ -162,7 +196,7 @@ public class Dictionary {
      * @return Hit 匹配结果描述
      */
     public Hit matchInMainDict(char[] charArray, int begin, int length) {
-        return singleton._MainDict.match(charArray, begin, length);
+        return singleton.getMainDict().match(charArray, begin, length);
     }
 
     /**
@@ -173,7 +207,7 @@ public class Dictionary {
      * @return Hit 匹配结果描述
      */
     public Hit matchInQuantifierDict(char[] charArray, int begin, int length) {
-        return singleton._QuantifierDict.match(charArray, begin, length);
+        return singleton.getQuantifierDict().match(charArray, begin, length);
     }
 
     /**
@@ -184,7 +218,7 @@ public class Dictionary {
      * @return Hit 匹配结果描述
      */
     public Hit matchInENUnitDict(char[] charArray, int begin, int length) {
-        return singleton._EN_UNIT_Dict.match(charArray, begin, length);
+        return singleton.getEnUnitDict().match(charArray, begin, length);
     }
 
     /**
@@ -208,11 +242,18 @@ public class Dictionary {
      * @return boolean
      */
     public boolean isCNUnitWord(char[] charArray, int begin, int length) {
-        return singleton._QuantifierDict.match(charArray, begin, length).isMatch();
+        return singleton.getQuantifierDict().match(charArray, begin, length).isMatch();
     }
 
+    /**
+     * 判断是否为停用词
+     * @param charArray
+     * @param begin
+     * @param length
+     * @return
+     */
     public boolean isStopWord(char[] charArray, int begin, int length) {
-        return singleton._StopWordDict.match(charArray, begin, length).isMatch();
+        return singleton.getStopWordDict().match(charArray, begin, length).isMatch();
     }
 
     /**
@@ -220,16 +261,16 @@ public class Dictionary {
      */
     private void loadMainDict() {
         //建立一个主词典实例
-        _MainDict = new DictSegment((char) 0);
+        this._MainDictAtomicReference.set(new DictSegment((char) 0));
         //读取主词典文件
-        String mainDictPath = cfg.getMainDictionary();
+        String mainDictPath = this.cfg.getMainDictionary();
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(mainDictPath);
         String mainDictName = getDicFileName(mainDictPath);
 
         if (inputStream == null) {
             throw new RuntimeException("Main Dictionary:{" + mainDictName + "} not found!!!");
         }
-        readDict(inputStream, _MainDict, "主词典", mainDictName);
+        readDict(inputStream, this.getMainDict(), "主词典", mainDictName);
         //加载扩展词典
         this.loadExtDict();
     }
@@ -239,7 +280,7 @@ public class Dictionary {
      */
     private void loadExtDict() {
         //加载扩展词典配置
-        List<String> extDictFiles = cfg.getExtDictionarys();
+        List<String> extDictFiles = this.cfg.getExtDictionarys();
         if (extDictFiles != null) {
             InputStream inputStream = null;
             for (String extDictName : extDictFiles) {
@@ -250,7 +291,7 @@ public class Dictionary {
                 if (inputStream == null) {
                     continue;
                 }
-                readDict(inputStream, _MainDict, "扩展词典", extDictName);
+                readDict(inputStream, this.getMainDict(), "扩展词典", extDictName);
             }
         }
     }
@@ -260,9 +301,9 @@ public class Dictionary {
      */
     private void loadStopWordDict() {
         //建立一个主词典实例
-        _StopWordDict = new DictSegment((char) 0);
+        this._StopWordDictAtomicReference.set(new DictSegment((char) 0));
         //加载扩展停止词典
-        List<String> extStopWordDictFiles = cfg.getExtStopWordDictionarys();
+        List<String> extStopWordDictFiles = this.cfg.getExtStopWordDictionarys();
         if (extStopWordDictFiles != null) {
             InputStream inputStream = null;
             for (String extStopWordDictName : extStopWordDictFiles) {
@@ -273,7 +314,7 @@ public class Dictionary {
                 if (inputStream == null) {
                     continue;
                 }
-                readDict(inputStream, _StopWordDict, "扩展停用词词典", extStopWordDictName);
+                readDict(inputStream, this.getStopWordDict(), "扩展停用词词典", extStopWordDictName);
             }
         }
     }
@@ -295,6 +336,14 @@ public class Dictionary {
         }
         readDict(inputStream, dictSegment, "自定义词典", dicFileName);
         return dictSegment;
+    }
+
+    public void reLoadMainDict() {
+        log.info("start to reload ik dict.");
+        // 新开一个实例加载词典，减少加载过程对当前词典使用的影响
+        Dictionary newDict = new Dictionary(this.cfg);
+        this.loadAllDicts(newDict);
+        log.info("reload ik dict finished.");
     }
 
     /**
@@ -343,5 +392,21 @@ public class Dictionary {
             return dicPath;
         }
         return dicPath.substring(index + 1);
+    }
+
+    public DictSegment getMainDict() {
+        return this._MainDictAtomicReference.get();
+    }
+
+    public DictSegment getStopWordDict() {
+        return this._MainDictAtomicReference.get();
+    }
+
+    public DictSegment getQuantifierDict() {
+        return this._QuantifierDictAtomicReference.get();
+    }
+
+    public DictSegment getEnUnitDict() {
+        return this._EnUnitDictAtomicReference.get();
     }
 }

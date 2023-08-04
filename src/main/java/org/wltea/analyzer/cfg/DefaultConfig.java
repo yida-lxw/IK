@@ -23,6 +23,10 @@
  */
 package org.wltea.analyzer.cfg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wltea.analyzer.dic.Dictionary;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,6 +40,10 @@ import java.util.Properties;
  *
  */
 public class DefaultConfig implements Configuration {
+    private static final Logger log = LoggerFactory.getLogger(DefaultConfig.class);
+
+    /**远程扩展词典自动刷新的时间间隔,单位：秒,默认值为60*/
+    public static final long DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL = 60L;
 
     /*
      * 分词器默认字典路径
@@ -52,14 +60,32 @@ public class DefaultConfig implements Configuration {
     private static final String FILE_NAME = "IKAnalyzer.cfg.xml";
     //配置属性——扩展字典
     private static final String EXT_DICT = "ext_dict";
-    //配置属性——扩展停止词典
+    //配置属性——远程扩展字典
+    private final static  String REMOTE_EXT_DICT = "remote_ext_dict";
+    //配置属性——扩展停用词词典
     private static final String EXT_STOP = "ext_stopwords";
+    //配置属性——远程扩展停用词词典
+    private static final String REMOTE_EXT_STOPWORD_DICT = "remote_ext_stopwords";
+
+    //配置属性——是否启用远程扩展词典
+    private static final String ENABLE_REMOTE_DICT = "enable_remote_dict";
+
+    //配置属性——远程扩展词典自动刷新时间间隔，单位：秒，默认60s
+    private static final String REMOTE_EXT_DICT_REFRESH_INTERVAL = "remote_ext_dict_refresh_interval";
 
     private Properties props;
     /*
      * 是否使用smart方式分词
      */
     private boolean useSmart;
+
+    /**
+     * 是否启用远程词典加载
+     */
+    private boolean enableRemoteDict;
+
+    /**远程扩展词典的刷新时间间隔，单位：秒*/
+    private long remoteExtDictRefreshInterval;
 
     /**
      * 返回单例
@@ -92,6 +118,7 @@ public class DefaultConfig implements Configuration {
      * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
      * @return useSmart
      */
+    @Override
     public boolean useSmart() {
         return useSmart;
     }
@@ -101,8 +128,55 @@ public class DefaultConfig implements Configuration {
      * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
      * @param useSmart
      */
+    @Override
     public void setUseSmart(boolean useSmart) {
         this.useSmart = useSmart;
+    }
+
+    /**
+     * 设置是否启用远程词典加载
+     * @return
+     */
+    @Override
+    public boolean enableRemoteDict() {
+        return enableRemoteDict;
+    }
+
+    /**
+     * 从配置文件中读取enableRemoteDict配置项的值
+     */
+    @Override
+    public void setEnableRemoteDict() {
+        String enableRemoteDict = props.getProperty(ENABLE_REMOTE_DICT);
+        this.enableRemoteDict = (null != enableRemoteDict && !"".equals(enableRemoteDict) &&
+                ("true".equalsIgnoreCase(enableRemoteDict) || "yes".equalsIgnoreCase(enableRemoteDict) ||
+                        "on".equalsIgnoreCase(enableRemoteDict) || "ok".equalsIgnoreCase(enableRemoteDict) ||
+                        "1".equalsIgnoreCase(enableRemoteDict)));
+    }
+
+    /**
+     * 获取远程扩展词典刷新的时间间隔(单位:秒)
+     * @return
+     */
+    @Override
+    public long remoteExtDictRefreshInterval() {
+        return remoteExtDictRefreshInterval;
+    }
+
+    @Override
+    public void setRemoteExtDictRefreshInterval() {
+        String remoteExtDictRefreshInterval = props.getProperty(REMOTE_EXT_DICT_REFRESH_INTERVAL);
+        if(null == remoteExtDictRefreshInterval || "".equalsIgnoreCase(remoteExtDictRefreshInterval)) {
+            this.remoteExtDictRefreshInterval = DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL;
+        } else {
+            try {
+                this.remoteExtDictRefreshInterval = Long.parseLong(remoteExtDictRefreshInterval);
+            } catch (Exception e) {
+                log.error("The configured parameter:[{}] value:[{}] cannot be converted to an Long type, it will be set to default value:[{}]",
+                        REMOTE_EXT_DICT_REFRESH_INTERVAL, remoteExtDictRefreshInterval, DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL);
+                this.remoteExtDictRefreshInterval = DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL;
+            }
+        }
     }
 
     /**
@@ -110,6 +184,7 @@ public class DefaultConfig implements Configuration {
      *
      * @return String 主词典路径
      */
+    @Override
     public String getMainDictionary() {
         return PATH_DIC_MAIN;
     }
@@ -118,6 +193,7 @@ public class DefaultConfig implements Configuration {
      * 获取量词词典路径
      * @return String 量词词典路径
      */
+    @Override
     public String getQuantifierDicionary() {
         return PATH_DIC_QUANTIFIER;
     }
@@ -126,6 +202,7 @@ public class DefaultConfig implements Configuration {
      * 获取英文单位词典路径
      * @return String 英文单位词典文件路径
      */
+    @Override
     public String getEnglishUnitDicionary() {
         return PATH_DIC_EN_UNIT;
     }
@@ -134,6 +211,7 @@ public class DefaultConfig implements Configuration {
      * 获取扩展字典配置路径
      * @return List<String> 相对类加载器的路径
      */
+    @Override
     public List<String> getExtDictionarys() {
         List<String> extDictFiles = new ArrayList<String>(2);
         String extDictCfg = props.getProperty(EXT_DICT);
@@ -149,6 +227,45 @@ public class DefaultConfig implements Configuration {
             }
         }
         return extDictFiles;
+    }
+
+    /**
+     * 获取远程扩展词词典的URL路径
+     * @return
+     */
+    @Override
+    public List<String> getRemoteExtDictionarys() {
+        List<String> remoteExtDictFiles = new ArrayList<String>(2);
+        String remoteExtDictCfg = props.getProperty(REMOTE_EXT_DICT);
+        if (remoteExtDictCfg != null) {
+            String[] filePaths = remoteExtDictCfg.split(";");
+            for (String filePath : filePaths) {
+                if (filePath != null && !"".equals(filePath.trim())) {
+                    remoteExtDictFiles.add(filePath);
+
+                }
+            }
+        }
+        return remoteExtDictFiles;
+    }
+
+    /**
+     * 获取远程扩展停用词词典的URL路径
+     * @return
+     */
+    @Override
+    public List<String> getRemoteExtStopWordDictionarys() {
+        List<String> remoteExtStopWordDictFiles = new ArrayList<String>(2);
+        String remoteExtStopWordDictCfg = props.getProperty(REMOTE_EXT_STOPWORD_DICT);
+        if (remoteExtStopWordDictCfg != null) {
+            String[] filePaths = remoteExtStopWordDictCfg.split(";");
+            for (String filePath : filePaths) {
+                if (filePath != null && !"".equals(filePath.trim())) {
+                    remoteExtStopWordDictFiles.add(filePath);
+                }
+            }
+        }
+        return remoteExtStopWordDictFiles;
     }
 
 
