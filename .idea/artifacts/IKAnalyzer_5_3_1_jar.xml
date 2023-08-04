@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="IKAnalyzer-5.3.1.jar">
-    <output-path>$USER_HOME$/Desktop</output-path>
-    <root id="archive" name="IKAnalyzer-5.3.1.jar.jar">
-      <element id="module-output" name="IK" />
-    </root>
-  </artifact>
-</component>
