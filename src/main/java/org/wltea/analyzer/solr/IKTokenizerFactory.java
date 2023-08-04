@@ -8,7 +8,7 @@ import org.wltea.analyzer.lucene.IKTokenizer;
 import java.util.Map;
 
 /**
- * IKTokenizer工厂类，兼容Lucene&Solr6.x
+ * IKTokenizer工厂类，兼容Lucene&Solr 6.x/7.x
  */
 public class IKTokenizerFactory extends TokenizerFactory {
     public IKTokenizerFactory(Map<String, String> args) {
