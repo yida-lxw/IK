@@ -7,6 +7,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.wltea.analyzer.cfg.DefaultConfig;
 
 import java.io.IOException;
 import java.security.AccessController;
@@ -31,10 +32,18 @@ public class Monitor implements Runnable {
 	 */
 	private String location;
 
-	public Monitor(String location) {
+	/**远程扩展词典自动刷新时间间隔，单位：秒*/
+	private long remoteExtDictRefreshInterval;
+
+	public Monitor(String location, long remoteExtDictRefreshInterval) {
 		this.location = location;
 		this.last_modified = null;
 		this.eTags = null;
+		this.remoteExtDictRefreshInterval = remoteExtDictRefreshInterval;
+	}
+
+	public Monitor(String location) {
+		this(location, DefaultConfig.DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL);
 	}
 
 	public void run() {
@@ -54,6 +63,7 @@ public class Monitor implements Runnable {
 	 */
 
 	public void runUnprivileged() {
+		log.info("Begin to load remote ext-dict:[{}] with the fixed refreshInterval:[{}]", location, remoteExtDictRefreshInterval);
 		//超时设置
 		RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(10*1000)
 				.setConnectTimeout(10*1000).setSocketTimeout(30*1000).build();
@@ -79,6 +89,7 @@ public class Monitor implements Runnable {
 					Dictionary.getSingleton().reLoadMainDict();
 					last_modified = response.getLastHeader("Last-Modified")==null?null:response.getLastHeader("Last-Modified").getValue();
 					eTags = response.getLastHeader("ETag")==null?null:response.getLastHeader("ETag").getValue();
+					log.info("The remote ext-dict:[{}] had been loaded with the fixed refreshInterval:[{}] successfully.", location, remoteExtDictRefreshInterval);
 				}
 			} else if (response.getStatusLine().getStatusCode() == 304) {
 				//没有修改，不做操作

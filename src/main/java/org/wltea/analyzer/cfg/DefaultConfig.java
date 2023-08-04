@@ -26,10 +26,8 @@ package org.wltea.analyzer.cfg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.Properties;
 
@@ -73,6 +71,7 @@ public class DefaultConfig implements Configuration {
     private static final String REMOTE_EXT_DICT_REFRESH_INTERVAL = "remote_ext_dict_refresh_interval";
 
     private Properties props;
+
     /*
      * 是否使用smart方式分词
      */
@@ -94,7 +93,7 @@ public class DefaultConfig implements Configuration {
         return new DefaultConfig();
     }
 
-    /*
+    /**
      * 初始化配置文件
      */
     private DefaultConfig() {
@@ -103,10 +102,8 @@ public class DefaultConfig implements Configuration {
         if (input != null) {
             try {
                 props.loadFromXML(input);
-            } catch (InvalidPropertiesFormatException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                log.error("Load IKAnalyzer.cfg.xml occur exception.");
             }
         }
     }

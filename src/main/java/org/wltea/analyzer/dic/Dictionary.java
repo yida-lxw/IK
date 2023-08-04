@@ -26,6 +26,7 @@ package org.wltea.analyzer.dic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wltea.analyzer.cfg.Configuration;
+import org.wltea.analyzer.cfg.DefaultConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class Dictionary {
     private static final Logger log = LogManager.getLogger(Dictionary.class);
 
     /**定时更新IK词库的线程池*/
-    private static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
+    private static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(6);
 
     private static final int BUFFER_SIZE = 2048;
 
@@ -124,11 +125,18 @@ public class Dictionary {
                         long remoteExtDictRefreshInterval = cfg.remoteExtDictRefreshInterval();
                         // 建立监控线程
                         for (String location : cfg.getRemoteExtDictionarys()) {
-                            // 10 秒是初始延迟， 60是间隔时间，单位秒
-                            threadPool.scheduleAtFixedRate(new Monitor(location), 10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
+                            if(null == location || "".equalsIgnoreCase(location)) {
+                                continue;
+                            }
+                            threadPool.scheduleAtFixedRate(new Monitor(location, DefaultConfig.DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL),
+                                    10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
                         }
                         for (String location : cfg.getRemoteExtStopWordDictionarys()) {
-                            threadPool.scheduleAtFixedRate(new Monitor(location), 10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
+                            if(null == location || "".equalsIgnoreCase(location)) {
+                                continue;
+                            }
+                            threadPool.scheduleAtFixedRate(new Monitor(location, DefaultConfig.DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL),
+                                    10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
                         }
                     }
                     return singleton;
