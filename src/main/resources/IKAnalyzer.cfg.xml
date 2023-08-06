@@ -2,19 +2,21 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
     <comment>IK Analyzer 扩展配置</comment>
-    <!--用户可以在这里配置自己的扩展字典 -->
+    <!--用户可以在这里配置自己的扩展字典(多个词典采用分号分隔) -->
     <entry key="ext_dict">ext.dic;</entry>
 
-    <!--用户可以在这里配置自己的扩展停止词字典-->
+    <!--用户可以在这里配置自己的扩展停用词词典(多个词典采用分号分隔)-->
     <entry key="ext_stopwords">stopword.dic;</entry>
 
-    <!--用户可以在这里配置远程扩展字典 -->
-    <!--是否启用远程扩展词典,可选值：true/yes/on/ok/1 -->
+    <!-- 用户可以在这里配置远程扩展字典 -->
+    <!-- 是否启用字符自动大写转小写,默认值true,可选值：true/yes/on/ok/1 -->
+    <!-- <entry key="enable_lower_case">true</entry> -->
+    <!-- 是否启用远程扩展词典,默认值false,可选值：true/yes/on/ok/1 -->
     <!-- <entry key="enable_remote_dict">false</entry> -->
-    <!--远程扩展词典自动刷新的时间间隔,单位：秒,若不配置此配置项或配置项值留空不填，则默认值为60 -->
+    <!-- 远程扩展词典自动刷新的时间间隔,单位：秒,若不配置此配置项或配置项值留空不填，则默认值为60 -->
     <!-- <entry key="remote_ext_dict_refresh_interval">60</entry> -->
-    <!--远程扩展词词典的URL地址 -->
+    <!-- 远程扩展词词典的URL地址 -->
     <!-- <entry key="remote_ext_dict">words_location</entry> -->
-    <!--远程扩展停用词词典的URL地址-->
+    <!-- 远程扩展停用词词典的URL地址 -->
     <!-- <entry key="remote_ext_stopwords">words_location</entry> -->
 </properties>

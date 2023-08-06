@@ -58,11 +58,14 @@ public class DefaultConfig implements Configuration {
     //配置属性——扩展字典
     private static final String EXT_DICT = "ext_dict";
     //配置属性——远程扩展字典
-    private final static  String REMOTE_EXT_DICT = "remote_ext_dict";
+    private final static String REMOTE_EXT_DICT = "remote_ext_dict";
     //配置属性——扩展停用词词典
-    private static final String EXT_STOP = "ext_stopwords";
+    private static final String EXT_STOPWORD_DICT = "ext_stopwords";
     //配置属性——远程扩展停用词词典
     private static final String REMOTE_EXT_STOPWORD_DICT = "remote_ext_stopwords";
+
+    //配置属性——是否启用远程扩展词典
+    private static final String ENABLE_LOWER_CASE = "enable_lower_case";
 
     //配置属性——是否启用远程扩展词典
     private static final String ENABLE_REMOTE_DICT = "enable_remote_dict";
@@ -78,11 +81,18 @@ public class DefaultConfig implements Configuration {
     private boolean useSmart;
 
     /**
+     * 是否启用自动大写转小写
+     */
+    private boolean enableLowercase;
+
+    /**
      * 是否启用远程词典加载
      */
     private boolean enableRemoteDict;
 
-    /**远程扩展词典的刷新时间间隔，单位：秒*/
+    /**
+     * 远程扩展词典的刷新时间间隔，单位：秒
+     */
     private long remoteExtDictRefreshInterval;
 
     /**
@@ -97,15 +107,11 @@ public class DefaultConfig implements Configuration {
      * 初始化配置文件
      */
     private DefaultConfig() {
-        props = new Properties();
-        InputStream input = this.getClass().getClassLoader().getResourceAsStream(FILE_NAME);
-        if (input != null) {
-            try {
-                props.loadFromXML(input);
-            } catch (Exception e) {
-                log.error("Load IKAnalyzer.cfg.xml occur exception.");
-            }
-        }
+        loadIKConfig();
+
+        this.setEnableLowercase();
+        this.setEnableRemoteDict();
+        this.setRemoteExtDictRefreshInterval();
     }
 
 
@@ -122,6 +128,7 @@ public class DefaultConfig implements Configuration {
     /**
      * 设置useSmart标志位
      * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
+     *
      * @param useSmart
      */
     @Override
@@ -130,12 +137,51 @@ public class DefaultConfig implements Configuration {
     }
 
     /**
+     * 是否启用自动大写转小写
+     *
+     * @return
+     */
+    @Override
+    public boolean isEnableLowercase() {
+        return enableLowercase;
+    }
+
+    @Override
+    public void setEnableLowercase() {
+        String enableLowerCaseStr = props.getProperty(ENABLE_LOWER_CASE);
+        //若不配置，则默认值为true
+        if (null == enableLowerCaseStr || "".equals(enableLowerCaseStr) || "".equalsIgnoreCase(enableLowerCaseStr.trim())) {
+            this.enableLowercase = true;
+        } else {
+            this.enableLowercase = ("true".equalsIgnoreCase(enableLowerCaseStr) || "yes".equalsIgnoreCase(enableLowerCaseStr) ||
+                    "on".equalsIgnoreCase(enableLowerCaseStr) || "ok".equalsIgnoreCase(enableLowerCaseStr) ||
+                    "1".equalsIgnoreCase(enableLowerCaseStr));
+        }
+    }
+
+    @Override
+    public void setEnableLowercase(boolean enableLowercase) {
+        this.enableLowercase = enableLowercase;
+    }
+
+    /**
      * 设置是否启用远程词典加载
+     *
      * @return
      */
     @Override
     public boolean enableRemoteDict() {
         return enableRemoteDict;
+    }
+
+    @Override
+    public void setEnableRemoteDict(boolean enableRemoteDict) {
+        this.enableRemoteDict = enableRemoteDict;
+    }
+
+    @Override
+    public void setRemoteExtDictRefreshInterval(long remoteExtDictRefreshInterval) {
+        this.remoteExtDictRefreshInterval = remoteExtDictRefreshInterval;
     }
 
     /**
@@ -152,10 +198,11 @@ public class DefaultConfig implements Configuration {
 
     /**
      * 获取远程扩展词典刷新的时间间隔(单位:秒)
+     *
      * @return
      */
     @Override
-    public long remoteExtDictRefreshInterval() {
+    public long getRemoteExtDictRefreshInterval() {
         return remoteExtDictRefreshInterval;
     }
 
@@ -271,7 +318,7 @@ public class DefaultConfig implements Configuration {
      */
     public List<String> getExtStopWordDictionarys() {
         List<String> extStopWordDictFiles = new ArrayList<String>(2);
-        String extStopWordDictCfg = props.getProperty(EXT_STOP);
+        String extStopWordDictCfg = props.getProperty(EXT_STOPWORD_DICT);
         if (extStopWordDictCfg != null) {
             //使用;分割多个扩展字典配置
             String[] filePaths = extStopWordDictCfg.split(";");
@@ -284,5 +331,20 @@ public class DefaultConfig implements Configuration {
             }
         }
         return extStopWordDictFiles;
+    }
+
+    /**
+     * 加载 IKAnalyzer.cfg.xml
+     */
+    private void loadIKConfig() {
+        this.props = new Properties();
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(FILE_NAME);
+        if (inputStream != null) {
+            try {
+                this.props.loadFromXML(inputStream);
+            } catch (Exception e) {
+                log.error("Load IKAnalyzer.cfg.xml occur exception.");
+            }
+        }
     }
 }

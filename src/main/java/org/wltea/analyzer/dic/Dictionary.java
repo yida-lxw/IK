@@ -26,7 +26,6 @@ package org.wltea.analyzer.dic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wltea.analyzer.cfg.Configuration;
-import org.wltea.analyzer.cfg.DefaultConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -85,9 +84,6 @@ public class Dictionary {
         _StopWordDictAtomicReference = new AtomicReference<>();
         _QuantifierDictAtomicReference = new AtomicReference<>();
         _EnUnitDictAtomicReference = new AtomicReference<>();
-
-        cfg.setEnableRemoteDict();
-        cfg.setRemoteExtDictRefreshInterval();
         this.cfg = cfg;
         loadAllDicts(this);
     }
@@ -122,20 +118,20 @@ public class Dictionary {
                 if (singleton == null) {
                     singleton = new Dictionary(cfg);
                     if(cfg.enableRemoteDict()) {
-                        long remoteExtDictRefreshInterval = cfg.remoteExtDictRefreshInterval();
+                        long remoteExtDictRefreshInterval = cfg.getRemoteExtDictRefreshInterval();
                         // 建立监控线程
                         for (String location : cfg.getRemoteExtDictionarys()) {
                             if(null == location || "".equalsIgnoreCase(location)) {
                                 continue;
                             }
-                            threadPool.scheduleAtFixedRate(new Monitor(location, DefaultConfig.DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL),
+                            threadPool.scheduleAtFixedRate(new Monitor(location, remoteExtDictRefreshInterval),
                                     10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
                         }
                         for (String location : cfg.getRemoteExtStopWordDictionarys()) {
                             if(null == location || "".equalsIgnoreCase(location)) {
                                 continue;
                             }
-                            threadPool.scheduleAtFixedRate(new Monitor(location, DefaultConfig.DEFAULT_REMOTE_EXT_DICT_REFRESH_INTERVAL),
+                            threadPool.scheduleAtFixedRate(new Monitor(location, remoteExtDictRefreshInterval),
                                     10, remoteExtDictRefreshInterval, TimeUnit.SECONDS);
                         }
                     }

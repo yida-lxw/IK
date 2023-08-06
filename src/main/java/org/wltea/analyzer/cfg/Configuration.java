@@ -59,9 +59,10 @@ public interface Configuration {
 
     /**
      * 获取远程扩展词典刷新的时间间隔(单位:秒)
+     *
      * @return
      */
-    long remoteExtDictRefreshInterval();
+    long getRemoteExtDictRefreshInterval();
 
     /**
      * 设置远程扩展词典刷新的时间间隔(单位:秒)
@@ -103,13 +104,30 @@ public interface Configuration {
 
     /**
      * 获取远程扩展词词典的URL路径
+     *
      * @return
      */
     List<String> getRemoteExtDictionarys();
 
     /**
      * 获取远程扩展停用词词典的URL路径
+     *
      * @return
      */
     List<String> getRemoteExtStopWordDictionarys();
+
+    /**
+     * 是否启用自动大写转小写
+     *
+     * @return
+     */
+    boolean isEnableLowercase();
+
+    void setEnableLowercase();
+
+    void setEnableLowercase(boolean enableLowercase);
+
+    void setEnableRemoteDict(boolean enableRemoteDict);
+
+    void setRemoteExtDictRefreshInterval(long remoteExtDictRefreshInterval);
 }
