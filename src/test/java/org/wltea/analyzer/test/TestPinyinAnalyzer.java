@@ -1,4 +1,4 @@
-package org.wltea.analyzer.sample;
+package org.wltea.analyzer.test;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.wltea.analyzer.pinyin.lucene.PinyinAnalyzer;

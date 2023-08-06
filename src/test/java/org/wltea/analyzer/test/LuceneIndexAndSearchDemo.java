@@ -21,7 +21,7 @@
  * 版权声明 2012，乌龙茶工作室
  * provided by Linliangyi and copyright 2012 by Oolong studio
  */
-package org.wltea.analyzer.sample;
+package org.wltea.analyzer.test;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
