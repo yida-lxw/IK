@@ -6,13 +6,9 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.wltea.analyzer.lucene.IKTokenizer;
 import org.wltea.analyzer.utils.Constant;
 
-import java.io.BufferedReader;
-import java.io.Reader;
-import java.io.StringReader;
-
 /**
  * 自定义拼音分词器
- * 兼容Lucene6.x
+ * 兼容Lucene 8.x
  *
  * @author Lanxiaowei
  */

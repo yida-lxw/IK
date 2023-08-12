@@ -36,7 +36,7 @@ import java.io.IOException;
 
 /**
  * IKTokenizer
- * 兼容Lucene 5.x版本
+ * 兼容Lucene 8.x版本
  */
 public final class IKTokenizer extends Tokenizer {
 
