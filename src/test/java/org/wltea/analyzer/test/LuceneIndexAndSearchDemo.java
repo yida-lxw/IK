@@ -21,7 +21,7 @@
  * 版权声明 2012，乌龙茶工作室
  * provided by Linliangyi and copyright 2012 by Oolong studio
  */
-package org.wltea.analyzer.sample;
+package org.wltea.analyzer.test;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -32,10 +32,7 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
@@ -102,14 +99,19 @@ public class LuceneIndexAndSearchDemo {
 
             //搜索相似度最高的5条记录
             TopDocs topDocs = isearcher.search(query, 5);
-            System.out.println("命中：" + topDocs.totalHits);
             //输出结果
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            for (int i = 0; i < topDocs.totalHits; i++) {
-                Document targetDoc = isearcher.doc(scoreDocs[i].doc);
-                System.out.println("内容：" + targetDoc.toString());
+            TotalHits totalHits = topDocs.totalHits;
+            if (null != totalHits && totalHits.value > 0) {
+                int totalCount = Long.valueOf(totalHits.value).intValue();
+                System.out.println("命中数据条数：" + totalCount);
+                for (int i = 0; i < totalCount; i++) {
+                    Document targetDoc = isearcher.doc(scoreDocs[i].doc);
+                    System.out.println("内容：" + targetDoc.toString());
+                }
+            } else {
+                System.out.println("Query没有命中任何记录.");
             }
-
         } catch (CorruptIndexException e) {
             e.printStackTrace();
         } catch (LockObtainFailedException e) {
