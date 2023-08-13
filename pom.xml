@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wltea.analyzer</groupId>
     <artifactId>IK</artifactId>
-    <version>1.0</version>
+    <version>8.0</version>
 
     <properties>
         <lucene.version>8.11.2</lucene.version>
