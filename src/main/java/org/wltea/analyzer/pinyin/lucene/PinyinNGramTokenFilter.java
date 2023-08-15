@@ -2,6 +2,7 @@ package org.wltea.analyzer.pinyin.lucene;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.miscellaneous.CodepointCountFilter;
 import org.apache.lucene.analysis.tokenattributes.*;
 import org.wltea.analyzer.utils.CharacterUtils;
 import org.wltea.analyzer.utils.Constant;

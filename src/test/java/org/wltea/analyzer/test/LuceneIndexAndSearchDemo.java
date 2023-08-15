@@ -32,13 +32,10 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.store.RAMDirectory;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
@@ -74,7 +71,8 @@ public class LuceneIndexAndSearchDemo {
         IndexSearcher isearcher = null;
         try {
             //建立内存索引对象
-            directory = new RAMDirectory();
+            //Lucene9.x中使用ByteBuffersDirectory替代RAMDirectory
+            directory = new ByteBuffersDirectory();
 
             //配置IndexWriterConfig
             IndexWriterConfig iwConfig = new IndexWriterConfig(analyzer);
@@ -105,11 +103,16 @@ public class LuceneIndexAndSearchDemo {
             System.out.println("命中：" + topDocs.totalHits);
             //输出结果
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            for (int i = 0; i < topDocs.totalHits; i++) {
-                Document targetDoc = isearcher.doc(scoreDocs[i].doc);
-                System.out.println("内容：" + targetDoc.toString());
+            TotalHits totalHits = topDocs.totalHits;
+            if (null != totalHits && totalHits.value > 0) {
+                int totalCount = Long.valueOf(totalHits.value).intValue();
+                for (int i = 0; i < totalCount; i++) {
+                    Document targetDoc = isearcher.doc(scoreDocs[i].doc);
+                    System.out.println("内容：" + targetDoc.toString());
+                }
+            } else {
+                System.out.println("没有命中任何记录.");
             }
-
         } catch (CorruptIndexException e) {
             e.printStackTrace();
         } catch (LockObtainFailedException e) {
