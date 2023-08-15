@@ -33,10 +33,11 @@ import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
 
 import java.io.IOException;
+import java.io.Reader;
 
 /**
  * IKTokenizer
- * 兼容Lucene 5.x版本
+ * 兼容Lucene 4.x版本
  */
 public final class IKTokenizer extends Tokenizer {
 
@@ -53,20 +54,21 @@ public final class IKTokenizer extends Tokenizer {
 
     private Version version = Version.LATEST;
 
-    public IKTokenizer() {
+    public IKTokenizer(Reader reader) {
         //默认细粒度切分算法
-        this(false);
+        this(reader, false);
     }
 
-    public IKTokenizer(boolean useSmart) {
+    public IKTokenizer(Reader reader, boolean useSmart) {
+        super(reader);
         offsetAtt = addAttribute(OffsetAttribute.class);
         termAtt = addAttribute(CharTermAttribute.class);
         typeAtt = addAttribute(TypeAttribute.class);
         _IKImplement = new IKSegmenter(input, useSmart);
     }
 
-    public IKTokenizer(AttributeFactory factory, boolean useSmart) {
-        super(factory);
+    public IKTokenizer(AttributeFactory factory, Reader reader, boolean useSmart) {
+        super(factory, reader);
         offsetAtt = addAttribute(OffsetAttribute.class);
         termAtt = addAttribute(CharTermAttribute.class);
         typeAtt = addAttribute(TypeAttribute.class);

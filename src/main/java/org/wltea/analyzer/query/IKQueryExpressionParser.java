@@ -460,13 +460,12 @@ public class IKQueryExpressionParser {
             return null;
         }
 
-        //BooleanQuery resultQuery = new BooleanQuery();
         BooleanQuery resultQuery = null;
-        BooleanQuery.Builder resultQueryBuilder = new BooleanQuery.Builder();
         if (this.querys.size() == 1) {
             return this.querys.get(0);
         }
 
+        resultQuery = new BooleanQuery();
         Query q2 = this.querys.pop();
         Query q1 = this.querys.pop();
         if ('&' == op.type) {
@@ -476,10 +475,10 @@ public class IKQueryExpressionParser {
                     if (clauses.size() > 0
                             && clauses.get(0).getOccur() == Occur.MUST) {
                         for (BooleanClause c : clauses) {
-                            resultQueryBuilder.add(c);
+                            resultQuery.add(c);
                         }
                     } else {
-                        resultQueryBuilder.add(q1, Occur.MUST);
+                        resultQuery.add(q1, Occur.MUST);
                     }
 
                 } else {
@@ -487,7 +486,7 @@ public class IKQueryExpressionParser {
                     //q1 instanceof TermRangeQuery
                     //q1 instanceof PhraseQuery
                     //others
-                    resultQueryBuilder.add(q1, Occur.MUST);
+                    resultQuery.add(q1, Occur.MUST);
                 }
             }
 
@@ -497,10 +496,10 @@ public class IKQueryExpressionParser {
                     if (clauses.size() > 0
                             && clauses.get(0).getOccur() == Occur.MUST) {
                         for (BooleanClause c : clauses) {
-                            resultQueryBuilder.add(c);
+                            resultQuery.add(c);
                         }
                     } else {
-                        resultQueryBuilder.add(q2, Occur.MUST);
+                        resultQuery.add(q2, Occur.MUST);
                     }
 
                 } else {
@@ -508,7 +507,7 @@ public class IKQueryExpressionParser {
                     //q1 instanceof TermRangeQuery
                     //q1 instanceof PhraseQuery
                     //others
-                    resultQueryBuilder.add(q2, Occur.MUST);
+                    resultQuery.add(q2, Occur.MUST);
                 }
             }
 
@@ -519,10 +518,10 @@ public class IKQueryExpressionParser {
                     if (clauses.size() > 0
                             && clauses.get(0).getOccur() == Occur.SHOULD) {
                         for (BooleanClause c : clauses) {
-                            resultQueryBuilder.add(c);
+                            resultQuery.add(c);
                         }
                     } else {
-                        resultQueryBuilder.add(q1, Occur.SHOULD);
+                        resultQuery.add(q1, Occur.SHOULD);
                     }
 
                 } else {
@@ -530,7 +529,7 @@ public class IKQueryExpressionParser {
                     //q1 instanceof TermRangeQuery
                     //q1 instanceof PhraseQuery
                     //others
-                    resultQueryBuilder.add(q1, Occur.SHOULD);
+                    resultQuery.add(q1, Occur.SHOULD);
                 }
             }
 
@@ -540,17 +539,17 @@ public class IKQueryExpressionParser {
                     if (clauses.size() > 0
                             && clauses.get(0).getOccur() == Occur.SHOULD) {
                         for (BooleanClause c : clauses) {
-                            resultQueryBuilder.add(c);
+                            resultQuery.add(c);
                         }
                     } else {
-                        resultQueryBuilder.add(q2, Occur.SHOULD);
+                        resultQuery.add(q2, Occur.SHOULD);
                     }
                 } else {
                     //q2 instanceof TermQuery
                     //q2 instanceof TermRangeQuery
                     //q2 instanceof PhraseQuery
                     //others
-                    resultQueryBuilder.add(q2, Occur.SHOULD);
+                    resultQuery.add(q2, Occur.SHOULD);
 
                 }
             }
@@ -564,10 +563,10 @@ public class IKQueryExpressionParser {
                 List<BooleanClause> clauses = ((BooleanQuery) q1).clauses();
                 if (clauses.size() > 0) {
                     for (BooleanClause c : clauses) {
-                        resultQueryBuilder.add(c);
+                        resultQuery.add(c);
                     }
                 } else {
-                    resultQueryBuilder.add(q1, Occur.MUST);
+                    resultQuery.add(q1, Occur.MUST);
                 }
 
             } else {
@@ -575,12 +574,11 @@ public class IKQueryExpressionParser {
                 //q1 instanceof TermRangeQuery
                 //q1 instanceof PhraseQuery
                 //others
-                resultQueryBuilder.add(q1, Occur.MUST);
+                resultQuery.add(q1, Occur.MUST);
             }
 
-            resultQueryBuilder.add(q2, Occur.MUST_NOT);
+            resultQuery.add(q2, Occur.MUST_NOT);
         }
-        resultQuery = resultQueryBuilder.build();
         return resultQuery;
     }
 
@@ -707,7 +705,5 @@ public class IKQueryExpressionParser {
         String ikQueryExp = "(id='ABcdRf' && date:{'20010101','20110101'} && keyword:'魔兽中国') || (content:'KSHT-KSH-A001-18'  || ulr='www.ik.com') - name:'林良益'";
         Query result = parser.parseExp(ikQueryExp, true);
         System.out.println(result);
-
     }
-
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * PinyinTokenFilter工厂类
- * 兼容Solr6.x
+ * 兼容Lucene4.x
  *
  * @author Lanxiaowei
  */

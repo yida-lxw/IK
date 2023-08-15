@@ -32,10 +32,14 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
@@ -74,7 +78,7 @@ public class LuceneIndexAndSearchDemo {
             directory = new RAMDirectory();
 
             //配置IndexWriterConfig
-            IndexWriterConfig iwConfig = new IndexWriterConfig(analyzer);
+            IndexWriterConfig iwConfig = new IndexWriterConfig(Version.LUCENE_4_10_4, analyzer);
             iwConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             iwriter = new IndexWriter(directory, iwConfig);
             //写入索引
@@ -102,11 +106,10 @@ public class LuceneIndexAndSearchDemo {
             System.out.println("命中：" + topDocs.totalHits);
             //输出结果
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            TotalHits totalHits = topDocs.totalHits;
-            if (null != totalHits && totalHits.value > 0) {
-                int totalCount = Long.valueOf(totalHits.value).intValue();
-                System.out.println("命中数据条数：" + totalCount);
-                for (int i = 0; i < totalCount; i++) {
+            int totalHits = topDocs.totalHits;
+            if (null != scoreDocs && totalHits > 0) {
+                System.out.println("命中数据条数：" + totalHits);
+                for (int i = 0; i < totalHits; i++) {
                     Document targetDoc = isearcher.doc(scoreDocs[i].doc);
                     System.out.println("内容：" + targetDoc.toString());
                 }

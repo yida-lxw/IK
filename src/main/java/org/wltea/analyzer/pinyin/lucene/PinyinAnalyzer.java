@@ -6,13 +6,11 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.wltea.analyzer.lucene.IKTokenizer;
 import org.wltea.analyzer.utils.Constant;
 
-import java.io.BufferedReader;
 import java.io.Reader;
-import java.io.StringReader;
 
 /**
  * 自定义拼音分词器
- * 兼容Lucene6.x
+ * 兼容Lucene4.x
  *
  * @author Lanxiaowei
  */
@@ -78,9 +76,8 @@ public class PinyinAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(String fieldName) {
-        //Reader reader = new BufferedReader(new StringReader(fieldName));
-        Tokenizer tokenizer = new IKTokenizer(useSmart);
+    protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
+        Tokenizer tokenizer = new IKTokenizer(reader, useSmart);
         //转拼音
         TokenStream tokenStream = new PinyinTokenFilter(tokenizer,
                 Constant.DEFAULT_SHORT_PINYIN, Constant.DEFAULT_PINYIN_ALL, Constant.DEFAULT_MIN_TERM_LRNGTH);

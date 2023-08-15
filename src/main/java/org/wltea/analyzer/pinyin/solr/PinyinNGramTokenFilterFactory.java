@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * PinyinNGramTokenFilter工厂类
- * 兼容Solr6.x
+ * 兼容Lucene6.x
  *
  * @author Lanxiaowei
  */
