@@ -1,8 +1,8 @@
 package org.wltea.analyzer.pinyin.solr;
 
 import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
 import org.wltea.analyzer.pinyin.lucene.PinyinEdgeNGramTokenFilter;
 import org.wltea.analyzer.pinyin.lucene.PinyinNGramTokenFilter;
 import org.wltea.analyzer.utils.Constant;

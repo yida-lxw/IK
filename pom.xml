@@ -5,15 +5,43 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wltea.analyzer</groupId>
     <artifactId>IK</artifactId>
-    <version>5.0</version>
+    <version>9.0</version>
 
     <properties>
-        <lucene.version>5.5.5</lucene.version>
+        <lucene.version>9.7.0</lucene.version>
         <pinyin4j.version>2.5.1</pinyin4j.version>
         <httpclient.version>4.5.14</httpclient.version>
         <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>ASF</id>
+            <name>ASF snapshot repository</name>
+            <url>https://repository.apache.org/snapshots/org/apache/lucene/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>maven-net-cn</id>
+            <name>Maven China Mirror</name>
+            <url>http://maven.net.cn/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <finalName>IK</finalName>
@@ -23,8 +51,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -34,19 +62,12 @@
         <!-- Lucene -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-highlighter</artifactId>
             <version>${lucene.version}</version>
         </dependency>
 
