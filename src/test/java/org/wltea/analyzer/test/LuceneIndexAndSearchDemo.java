@@ -32,7 +32,10 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
@@ -102,9 +105,8 @@ public class LuceneIndexAndSearchDemo {
             System.out.println("命中：" + topDocs.totalHits);
             //输出结果
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            TotalHits totalHits = topDocs.totalHits;
-            if (null != totalHits && totalHits.value > 0) {
-                int totalCount = Long.valueOf(totalHits.value).intValue();
+            if (null != scoreDocs && scoreDocs.length > 0) {
+                int totalCount = Long.valueOf(String.valueOf(topDocs.totalHits)).intValue();
                 System.out.println("命中数据条数：" + totalCount);
                 for (int i = 0; i < totalCount; i++) {
                     Document targetDoc = isearcher.doc(scoreDocs[i].doc);
