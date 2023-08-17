@@ -11,7 +11,7 @@ import java.io.IOException;
 
 /**
  * 对转换后的拼音进行EdgeNGram处理的TokenFilter
- * 兼容Lucene4.x
+ * 兼容Lucene 4.x
  *
  * @author Lanxiaowei
  */

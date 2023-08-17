@@ -10,7 +10,7 @@ import java.io.Reader;
 
 /**
  * 自定义拼音分词器
- * 兼容Lucene4.x
+ * 兼容Lucene 4.x
  *
  * @author Lanxiaowei
  */
