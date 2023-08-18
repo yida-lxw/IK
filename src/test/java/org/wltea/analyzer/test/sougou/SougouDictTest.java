@@ -10,7 +10,7 @@ public class SougouDictTest {
 
         //多个scel文件转化为一个txt (格式：拼音字母 词)
         try {
-            scel.parseFiles("/Users/yida/Downloads/搜狗输入法词库/搜狗输入法词库/", "/Users/yida/Downloads/搜狗输入法词库/txt/all.txt", false);
+            scel.parseFiles("/Users/yida/Downloads/sougouDicts/", "/Users/yida/Downloads/sougouDicts/all.txt", true);
         } catch (IOException e) {
             e.printStackTrace();
         }

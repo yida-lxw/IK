@@ -109,7 +109,11 @@ public class SougouScelFileProcessing extends FileProcessing {
             SougouScelModel model = null;
             in = new FileInputStream(scels[i]);
             System.out.println("当前正在读取：" + scels[i].getAbsolutePath());
-            model = read(in);
+            try {
+                model = read(in);
+            } catch (Exception e) {
+                System.out.println("读取：" + scels[i].getAbsolutePath() + "时报错了");
+            }
             if (model != null) {
                 models.add(model);
             }
@@ -152,15 +156,19 @@ public class SougouScelFileProcessing extends FileProcessing {
                 int size = list.size();
                 for (int i = 0; i < size; i++) {
                     String word = list.get(i);
-                    //out.write((entry.getKey() + " ").getBytes());
-                    if (wordMap.containsKey(word.toLowerCase())) {
+                    String writedVal = word.toLowerCase();
+                    if (writedVal.length() <= 0) {
                         continue;
                     }
-                    // 写入txt文件
-                    out.write((word.toLowerCase() + "\n").getBytes());
-                    wordMap.put(word.toLowerCase(), word.toLowerCase());
-                    count++;
+                    //out.write((entry.getKey() + " ").getBytes());
+                    if (wordMap.containsKey(writedVal)) {
+                        continue;
+                    }
 
+                    // 写入txt文件
+                    out.write((writedVal + "\n").getBytes());
+                    wordMap.put(writedVal, writedVal);
+                    count++;
                 }
             }
 
@@ -253,7 +261,6 @@ public class SougouScelFileProcessing extends FileProcessing {
             return model;
         } catch (IOException e) {
             log.info(e.getMessage());
-            e.printStackTrace();
         } finally {
             try {
                 in.close();
