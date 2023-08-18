@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.yida-lxw</groupId>
     <artifactId>IK</artifactId>
-    <version>4.0</version>
+    <version>4.1</version>
     <name>IK</name>
     <url>https://github.com/yida-lxw/IK</url>
     <description>IK分词器源码</description>
@@ -133,7 +133,7 @@
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>releases</releaseProfiles>
-                    <useReleaseProfile>false</useReleaseProfile>
+                    <useReleaseProfile>true</useReleaseProfile>
                 </configuration>
             </plugin>
 
