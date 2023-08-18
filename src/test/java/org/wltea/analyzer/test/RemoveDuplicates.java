@@ -6,9 +6,9 @@ import java.util.Set;
 
 public class RemoveDuplicates {
     public static void main(String[] args) throws Exception {
-        String firstFile = "/Users/yida/Downloads/all.dic";
-        String secondFile = "/Users/yida/Downloads/main_dic_2023.dic";
-        String thirdFile = "/Users/yida/Downloads/main_dic.dic";
+        String firstFile = "/Users/yida/Downloads/sougouDicts/all.txt";
+        String secondFile = "/Users/yida/Downloads/sougouDicts/main2012.dic";
+        String thirdFile = "/Users/yida/Downloads/sougouDicts/main_dic.dic";
         String charset = "utf-8";
         // 打开第一个文件并读取数据到set1中
         InputStreamReader inputStreamReader1 = new InputStreamReader(new FileInputStream(firstFile), charset);
