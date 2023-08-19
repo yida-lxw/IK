@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class RemoveDuplicates {
     public static void main(String[] args) throws Exception {
-        String firstFile = "/Users/yida/Downloads/sougouDicts/all.txt";
+        String firstFile = "/Users/yida/Downloads/sougouDicts/company.txt";
         String secondFile = "/Users/yida/Downloads/sougouDicts/main2012.dic";
         String thirdFile = "/Users/yida/Downloads/sougouDicts/main_dic.dic";
         String charset = "utf-8";
@@ -16,7 +16,7 @@ public class RemoveDuplicates {
         Set<String> set1 = new LinkedHashSet<>();
         String line = reader1.readLine();
         while (line != null) {
-            set1.add(line);
+            set1.add(line.trim());
             line = reader1.readLine();
         }
         reader1.close();
@@ -27,7 +27,7 @@ public class RemoveDuplicates {
         Set<String> set2 = new LinkedHashSet<String>();
         line = reader2.readLine();
         while (line != null) {
-            set2.add(line);
+            set2.add(line.trim());
             line = reader2.readLine();
         }
         reader2.close();
@@ -39,7 +39,10 @@ public class RemoveDuplicates {
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(thirdFile), charset);
         BufferedWriter writer = new BufferedWriter(outputStreamWriter);
         for (String str : set1) {
-            writer.write(str);
+            if (str.trim().length() <= 0) {
+                continue;
+            }
+            writer.write(str.trim());
             writer.newLine();
         }
         writer.flush();
