@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.yida-lxw</groupId>
     <artifactId>IK</artifactId>
-    <version>5.0</version>
+    <version>5.1</version>
     <name>IK</name>
     <url>https://github.com/yida-lxw/IK</url>
     <description>IK分词器源码</description>
@@ -122,7 +122,7 @@
                 <configuration>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
 
