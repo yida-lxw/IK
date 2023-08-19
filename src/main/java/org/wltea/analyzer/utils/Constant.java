@@ -15,7 +15,9 @@ public class Constant {
     public static final boolean DEFAULT_PINYIN_ALL = true;
     public static final boolean DEFAULT_SHORT_PINYIN = false;
     public static final boolean DEFAULT_IK_USE_SMART = false;
-    public static final boolean DEFAULT_EDGES_GRAM = false;
+    public static final boolean DEFAULT_EDGES_NGRAM = false;
+    //默认不开启Edge_NGram和NGram模式
+    public static final boolean DEFAULT_ENABLE_EDGES_NGRAM_OR_NGRAM = false;
     public static final String DEFAULT_SIDE_FRONT = "front";
     public static final String DEFAULT_SIDE_BACK = "back";
 }
