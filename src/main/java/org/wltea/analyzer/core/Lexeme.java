@@ -96,10 +96,10 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
     }
 
     /*
-         * 判断词元相等算法
-         * 起始位置偏移、起始位置、终止位置相同
-         * @see java.lang.Object#equals(Object o)
-         */
+     * 判断词元相等算法
+     * 起始位置偏移、起始位置、终止位置相同
+     * @see java.lang.Object#equals(Object o)
+     */
     @Override
     public boolean equals(Object o) {
         if (o == null) {
@@ -147,11 +147,11 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
         } else if (this.begin == other.getBegin()) {
             //词元长度优先
             if (this.length > other.getLength()) {
-                return 1;
+                return -1;
             } else if (this.length == other.getLength()) {
                 return 0;
             } else {//this.length < other.getLength()
-                return -1;
+                return 1;
             }
 
         } else {//this.begin > other.getBegin()
