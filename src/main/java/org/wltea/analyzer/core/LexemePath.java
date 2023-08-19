@@ -63,10 +63,8 @@ class LexemePath extends QuickSortSet implements Comparable<LexemePath> {
             this.payloadLength = this.pathEnd - this.pathBegin;
             return true;
 
-        } else {
-            return false;
-
         }
+        return false;
     }
 
     /**

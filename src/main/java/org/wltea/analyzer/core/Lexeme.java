@@ -147,11 +147,11 @@ public class Lexeme implements Comparable<Lexeme>, Cloneable {
         } else if (this.begin == other.getBegin()) {
             //词元长度优先
             if (this.length > other.getLength()) {
-                return -1;
+                return 1;
             } else if (this.length == other.getLength()) {
                 return 0;
             } else {//this.length < other.getLength()
-                return 1;
+                return -1;
             }
 
         } else {//this.begin > other.getBegin()
