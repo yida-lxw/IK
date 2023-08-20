@@ -8,7 +8,7 @@ import org.wltea.analyzer.utils.Constant;
 
 /**
  * 自定义拼音分词器
- * 兼容Lucene6.x
+ * 兼容Lucene 7.x
  *
  * @author Lanxiaowei
  */
