@@ -36,7 +36,7 @@ public class PinyinNGramTokenFilterFactory extends TokenFilterFactory {
 
         this.minGram = getInt(args, "minGram", Constant.DEFAULT_MIN_GRAM);
         this.maxGram = getInt(args, "maxGram", Constant.DEFAULT_MAX_GRAM);
-        this.edgesNGram = getBoolean(args, "edgesNGram", Constant.DEFAULT_EDGES_GRAM);
+        this.edgesNGram = getBoolean(args, "edgesNGram", Constant.DEFAULT_EDGES_NGRAM);
         this.nGramChinese = getBoolean(args, "nGramChinese", Constant.DEFAULT_NGRAM_CHINESE);
         this.nGramNumber = getBoolean(args, "nGramNumber", Constant.DEFAULT_NGRAM_NUMBER);
     }
