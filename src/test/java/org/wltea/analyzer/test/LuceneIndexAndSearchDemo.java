@@ -102,11 +102,11 @@ public class LuceneIndexAndSearchDemo {
 
             //搜索相似度最高的5条记录
             TopDocs topDocs = isearcher.search(query, 5);
-            System.out.println("命中：" + topDocs.totalHits);
             //输出结果
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
             if (null != scoreDocs && scoreDocs.length > 0) {
-                int totalCount = Long.valueOf(String.valueOf(topDocs.totalHits)).intValue();
+                long totalCount = topDocs.totalHits;
                 System.out.println("命中数据条数：" + totalCount);
                 for (int i = 0; i < totalCount; i++) {
                     Document targetDoc = isearcher.doc(scoreDocs[i].doc);
