@@ -17,7 +17,7 @@ import java.util.Iterator;
 
 /**
  * 拼音过滤器[负责将汉字转换为拼音]
- * 兼容Lucene 8.x
+ * 兼容Lucene 9.x
  *
  * @author Lanxiaowei
  */
