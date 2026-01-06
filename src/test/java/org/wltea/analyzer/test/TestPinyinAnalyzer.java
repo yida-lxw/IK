@@ -12,9 +12,9 @@ import java.io.IOException;
  * 测试拼音分词器
  */
 public class TestPinyinAnalyzer {
-    public static void main(String[] args) throws IOException {
-        String text = "渣男陈赫为什么总是上头条，污染了我的眼睛知道吗？";
-        Analyzer analyzer = new PinyinAnalyzer();
-        AnalyzerUtils.displayTokens(analyzer, text);
-    }
+	public static void main(String[] args) throws IOException {
+		String text = "渣男陈赫为什么总是上头条，污染了我的眼睛知道吗？";
+		Analyzer analyzer = new PinyinAnalyzer();
+		AnalyzerUtils.displayTokens(analyzer, text);
+	}
 }

@@ -36,85 +36,86 @@ import java.io.IOException;
 
 /**
  * IKTokenizer
- * 兼容Lucene 9.x版本
+ * 兼容Lucene 8.x版本
  */
 public final class IKTokenizer extends Tokenizer {
 
-    //IK分词器实现
-    private IKSegmenter _IKImplement;
-    //词元文本属性
-    private final CharTermAttribute termAtt;
-    //词元位移属性
-    private final OffsetAttribute offsetAtt;
-    //词元分类属性（该属性分类参考org.wltea.analyzer.core.Lexeme中的分类常量）
-    private final TypeAttribute typeAtt;
-    //记录最后一个词元的结束位置
-    private int endPosition;
+	//IK分词器实现
+	private IKSegmenter _IKImplement;
+	//词元文本属性
+	private final CharTermAttribute termAtt;
+	//词元位移属性
+	private final OffsetAttribute offsetAtt;
+	//词元分类属性（该属性分类参考org.wltea.analyzer.core.Lexeme中的分类常量）
+	private final TypeAttribute typeAtt;
+	//记录最后一个词元的结束位置
+	private int endPosition;
 
-    private Version version = Version.LATEST;
+	private Version version = Version.LATEST;
 
-    public IKTokenizer() {
-        //默认细粒度切分算法
-        this(false);
-    }
+	public IKTokenizer() {
+		//默认细粒度切分算法
+		this(false);
+	}
 
-    public IKTokenizer(boolean useSmart) {
-        offsetAtt = addAttribute(OffsetAttribute.class);
-        termAtt = addAttribute(CharTermAttribute.class);
-        typeAtt = addAttribute(TypeAttribute.class);
-        _IKImplement = new IKSegmenter(input, useSmart);
-    }
+	public IKTokenizer(boolean useSmart) {
+		offsetAtt = addAttribute(OffsetAttribute.class);
+		termAtt = addAttribute(CharTermAttribute.class);
+		typeAtt = addAttribute(TypeAttribute.class);
+		_IKImplement = new IKSegmenter(input, useSmart);
+	}
 
-    public IKTokenizer(AttributeFactory factory, boolean useSmart) {
-        super(factory);
-        offsetAtt = addAttribute(OffsetAttribute.class);
-        termAtt = addAttribute(CharTermAttribute.class);
-        typeAtt = addAttribute(TypeAttribute.class);
-        _IKImplement = new IKSegmenter(input, useSmart);
-    }
+	public IKTokenizer(AttributeFactory factory, boolean useSmart) {
+		super(factory);
+		offsetAtt = addAttribute(OffsetAttribute.class);
+		termAtt = addAttribute(CharTermAttribute.class);
+		typeAtt = addAttribute(TypeAttribute.class);
+		_IKImplement = new IKSegmenter(input, useSmart);
+	}
 
-    @Override
-    public boolean incrementToken() throws IOException {
-        //清除所有的词元属性
-        clearAttributes();
-        Lexeme nextLexeme = _IKImplement.next();
-        if (null == nextLexeme) {
-            //返回false表示Token已经遍历完了
-            return false;
-        }
-        return setAttributes(nextLexeme);
-    }
+	@Override
+	public boolean incrementToken() throws IOException {
+		//清除所有的词元属性
+		clearAttributes();
+		Lexeme nextLexeme = _IKImplement.next();
+		if (null == nextLexeme) {
+			//返回false表示Token已经遍历完了
+			return false;
+		}
+		return setAttributes(nextLexeme);
+	}
 
-    /**
-     * 为Lexeme设置Token属性
-     * @param nextLexeme
-     * @return
-     */
-    private boolean setAttributes(Lexeme nextLexeme) {
-        //将Lexeme转成Attributes
-        //设置词元文本
-        termAtt.append(nextLexeme.getLexemeText());
-        //设置词元长度
-        termAtt.setLength(nextLexeme.getLength());
-        //设置词元位移
-        offsetAtt.setOffset(nextLexeme.getBeginPosition(), nextLexeme.getEndPosition());
-        //记录分词的最后位置
-        endPosition = nextLexeme.getEndPosition();
-        //记录词元分类
-        typeAtt.setType(nextLexeme.getLexemeTypeString());
-        //返会true告知还有下个词元
-        return true;
-    }
+	/**
+	 * 为Lexeme设置Token属性
+	 *
+	 * @param nextLexeme
+	 * @return
+	 */
+	private boolean setAttributes(Lexeme nextLexeme) {
+		//将Lexeme转成Attributes
+		//设置词元文本
+		termAtt.append(nextLexeme.getLexemeText());
+		//设置词元长度
+		termAtt.setLength(nextLexeme.getLength());
+		//设置词元位移
+		offsetAtt.setOffset(nextLexeme.getBeginPosition(), nextLexeme.getEndPosition());
+		//记录分词的最后位置
+		endPosition = nextLexeme.getEndPosition();
+		//记录词元分类
+		typeAtt.setType(nextLexeme.getLexemeTypeString());
+		//返会true告知还有下个词元
+		return true;
+	}
 
-    @Override
-    public void reset() throws IOException {
-        super.reset();
-        _IKImplement.reset(input);
-    }
+	@Override
+	public void reset() throws IOException {
+		super.reset();
+		_IKImplement.reset(input);
+	}
 
-    public final void end() throws IOException {
-        super.end();
-        int finalOffset = correctOffset(this.endPosition);
-        offsetAtt.setOffset(finalOffset, finalOffset);
-    }
+	public final void end() throws IOException {
+		super.end();
+		int finalOffset = correctOffset(this.endPosition);
+		offsetAtt.setOffset(finalOffset, finalOffset);
+	}
 }
