@@ -44,97 +44,95 @@ import java.io.IOException;
 /**
  * 使用IKAnalyzer进行Lucene索引和查询的演示
  * 2012-3-2
- *
- * 以下是结合Lucene4.0 API的写法
- *
  */
 public class LuceneIndexAndSearchDemo {
 
 
-    /**
-     * 模拟：
-     * 创建一个单条记录的索引，并对其进行搜索
-     * @param args
-     */
-    public static void main(String[] args) {
-        //Lucene Document的域名
-        String fieldName = "text";
-        //检索内容
-        String text = "IK Analyzer是一个结合词典分词和文法分词的中文分词开源工具包。它使用了全新的正向迭代最细粒度切分算法。";
+	/**
+	 * 模拟：
+	 * 创建一个单条记录的索引，并对其进行搜索
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		//Lucene Document的域名
+		String fieldName = "text";
+		//检索内容
+		String text = "IK Analyzer是一个结合词典分词和文法分词的中文分词开源工具包。它使用了全新的正向迭代最细粒度切分算法。";
 
-        //实例化IKAnalyzer分词器
-        Analyzer analyzer = new IKAnalyzer(true);
+		//实例化IKAnalyzer分词器
+		Analyzer analyzer = new IKAnalyzer(true);
 
-        Directory directory = null;
-        IndexWriter iwriter = null;
-        IndexReader ireader = null;
-        IndexSearcher isearcher = null;
-        try {
-            //建立内存索引对象
-            directory = new RAMDirectory();
+		Directory directory = null;
+		IndexWriter iwriter = null;
+		IndexReader ireader = null;
+		IndexSearcher isearcher = null;
+		try {
+			//建立内存索引对象
+			directory = new RAMDirectory();
 
-            //配置IndexWriterConfig
-            IndexWriterConfig iwConfig = new IndexWriterConfig(analyzer);
-            iwConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
-            iwriter = new IndexWriter(directory, iwConfig);
-            //写入索引
-            Document doc = new Document();
-            doc.add(new StringField("ID", "10000", Field.Store.YES));
-            doc.add(new TextField(fieldName, text, Field.Store.YES));
-            iwriter.addDocument(doc);
-            iwriter.close();
+			//配置IndexWriterConfig
+			IndexWriterConfig iwConfig = new IndexWriterConfig(analyzer);
+			iwConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
+			iwriter = new IndexWriter(directory, iwConfig);
+			//写入索引
+			Document doc = new Document();
+			doc.add(new StringField("ID", "10000", Field.Store.YES));
+			doc.add(new TextField(fieldName, text, Field.Store.YES));
+			iwriter.addDocument(doc);
+			iwriter.close();
 
 
-            //搜索过程**********************************
-            //实例化搜索器
-            ireader = DirectoryReader.open(directory);
-            isearcher = new IndexSearcher(ireader);
+			//搜索过程**********************************
+			//实例化搜索器
+			ireader = DirectoryReader.open(directory);
+			isearcher = new IndexSearcher(ireader);
 
-            String keyword = "中文分词工具包";
-            //使用QueryParser查询分析器构造Query对象
-            QueryParser qp = new QueryParser(fieldName, analyzer);
-            qp.setDefaultOperator(QueryParser.AND_OPERATOR);
-            Query query = qp.parse(keyword);
-            System.out.println("Query = " + query);
+			String keyword = "中文分词工具包";
+			//使用QueryParser查询分析器构造Query对象
+			QueryParser qp = new QueryParser(fieldName, analyzer);
+			qp.setDefaultOperator(QueryParser.AND_OPERATOR);
+			Query query = qp.parse(keyword);
+			System.out.println("Query = " + query);
 
-            //搜索相似度最高的5条记录
-            TopDocs topDocs = isearcher.search(query, 5);
-            //输出结果
-            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            TotalHits totalHits = topDocs.totalHits;
-            if (null != totalHits && totalHits.value > 0) {
-                int totalCount = Long.valueOf(totalHits.value).intValue();
-                System.out.println("命中数据条数：" + totalCount);
-                for (int i = 0; i < totalCount; i++) {
-                    Document targetDoc = isearcher.doc(scoreDocs[i].doc);
-                    System.out.println("内容：" + targetDoc.toString());
-                }
-            } else {
-                System.out.println("Query没有命中任何记录.");
-            }
-        } catch (CorruptIndexException e) {
-            e.printStackTrace();
-        } catch (LockObtainFailedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } finally {
-            if (ireader != null) {
-                try {
-                    ireader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (directory != null) {
-                try {
-                    directory.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+			//搜索相似度最高的5条记录
+			TopDocs topDocs = isearcher.search(query, 5);
+			//输出结果
+			ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+			TotalHits totalHits = topDocs.totalHits;
+			if (null != totalHits && totalHits.value > 0) {
+				int totalCount = Long.valueOf(totalHits.value).intValue();
+				System.out.println("命中数据条数：" + totalCount);
+				for (int i = 0; i < totalCount; i++) {
+					Document targetDoc = isearcher.doc(scoreDocs[i].doc);
+					System.out.println("内容：" + targetDoc.toString());
+				}
+			} else {
+				System.out.println("Query没有命中任何记录.");
+			}
+		} catch (CorruptIndexException e) {
+			e.printStackTrace();
+		} catch (LockObtainFailedException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} finally {
+			if (ireader != null) {
+				try {
+					ireader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (directory != null) {
+				try {
+					directory.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

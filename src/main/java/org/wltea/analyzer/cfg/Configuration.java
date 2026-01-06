@@ -26,108 +26,114 @@ package org.wltea.analyzer.cfg;
 import java.util.List;
 
 /**
- *
  * 配置管理类接口
- *
  */
 public interface Configuration {
 
-    /**
-     * 返回useSmart标志位
-     * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
-     * @return useSmart
-     */
-    boolean useSmart();
+	/**
+	 * 返回useSmart标志位
+	 * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
+	 *
+	 * @return useSmart
+	 */
+	boolean useSmart();
 
-    /**
-     * 设置useSmart标志位
-     * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
-     * @param useSmart
-     */
-    void setUseSmart(boolean useSmart);
+	/**
+	 * 设置useSmart标志位
+	 * useSmart =true ，分词器使用智能切分策略， =false则使用细粒度切分
+	 *
+	 * @param useSmart
+	 */
+	void setUseSmart(boolean useSmart);
 
-    /**
-     * 是否启用远程词典加载
-     * @return
-     */
-    boolean enableRemoteDict();
+	/**
+	 * 是否启用远程词典加载
+	 *
+	 * @return
+	 */
+	boolean enableRemoteExtDict();
 
-    /**
-     * 从配置文件中读取enableRemoteDict配置项的值
-     */
-    void setEnableRemoteDict();
+	/**
+	 * 从配置文件中读取enableRemoteDict配置项的值
+	 */
+	void setEnableRemoteExtDict();
 
-    /**
-     * 获取远程扩展词典刷新的时间间隔(单位:秒)
-     *
-     * @return
-     */
-    long getRemoteExtDictRefreshInterval();
+	/**
+	 * 获取远程扩展词典刷新的时间间隔(单位:秒)
+	 *
+	 * @return
+	 */
+	long getRemoteExtDictRefreshInterval();
 
-    /**
-     * 设置远程扩展词典刷新的时间间隔(单位:秒)
-     * @return
-     */
-    void setRemoteExtDictRefreshInterval();
+	/**
+	 * 设置远程扩展词典刷新的时间间隔(单位:秒)
+	 *
+	 * @return
+	 */
+	void setRemoteExtDictRefreshInterval();
 
-    /**
-     * 获取主词典路径
-     *
-     * @return String 主词典路径
-     */
-    String getMainDictionary();
+	/**
+	 * 获取主词典路径
+	 *
+	 * @return String 主词典路径
+	 */
+	String getMainDictionary();
 
-    /**
-     * 获取中文量词词典路径
-     * @return String 量词词典路径
-     */
-    String getQuantifierDicionary();
+	/**
+	 * 获取中文量词词典路径
+	 *
+	 * @return String 量词词典路径
+	 */
+	String getQuantifierDicionary();
 
-    /**
-     * 获取英文单位词典路径
-     * @return String 英文单位词典文件路径
-     */
-    String getEnglishUnitDicionary();
+	/**
+	 * 获取英文单位词典路径
+	 *
+	 * @return String 英文单位词典文件路径
+	 */
+	String getEnglishUnitDicionary();
 
-    /**
-     * 获取扩展字典配置路径
-     * @return List<String> 相对类加载器的路径
-     */
-    List<String> getExtDictionarys();
+	/**
+	 * 获取扩展字典配置路径
+	 *
+	 * @return List<String> 相对类加载器的路径
+	 */
+	List<String> getExtDictionarys();
 
 
-    /**
-     * 获取扩展停止词典配置路径
-     * @return List<String> 相对类加载器的路径
-     */
-    List<String> getExtStopWordDictionarys();
+	/**
+	 * 获取扩展停止词典配置路径
+	 *
+	 * @return List<String> 相对类加载器的路径
+	 */
+	List<String> getExtStopWordDictionarys();
 
-    /**
-     * 获取远程扩展词词典的URL路径
-     *
-     * @return
-     */
-    List<String> getRemoteExtDictionarys();
+	/**
+	 * 获取远程扩展词词典的URL路径
+	 *
+	 * @return
+	 */
+	List<String> getRemoteExtDictionarys();
 
-    /**
-     * 获取远程扩展停用词词典的URL路径
-     *
-     * @return
-     */
-    List<String> getRemoteExtStopWordDictionarys();
+	/**
+	 * 获取远程扩展停用词词典的URL路径
+	 *
+	 * @return
+	 */
+	List<String> getRemoteExtStopWordDictionarys();
 
-    /**
-     * 是否启用自动大写转小写
-     *
-     * @return
-     */
-    boolean isEnableLowercase();
+	/**
+	 * 是否启用自动大写转小写
+	 *
+	 * @return
+	 */
+	boolean isEnableLowercase();
 
-    void setEnableLowercase();
+	void setEnableLowercase();
 
-    void setEnableLowercase(boolean enableLowercase);
+	void setEnableLowercase(boolean enableLowercase);
 
-    void setEnableRemoteDict(boolean enableRemoteDict);
+	void setEnableRemoteExtDict(boolean enableRemoteExtDict);
 
-    void setRemoteExtDictRefreshInterval(long remoteExtDictRefreshInterval);
+	void setRemoteExtDictRefreshInterval(long remoteExtDictRefreshInterval);
 }

@@ -32,99 +32,119 @@ import java.util.List;
 
 
 /**
- *  中文-日韩文子分词器
+ * 中文-日韩文子分词器
  */
 class CJKSegmenter implements ISegmenter {
 
-    //子分词器标签
-    static final String SEGMENTER_NAME = "CJK_SEGMENTER";
-    //待处理的分词hit队列
-    private List<Hit> tmpHits;
+	//子分词器标签
+	static final String SEGMENTER_NAME = "CJK_SEGMENTER";
+	//待处理的分词hit队列
+	private List<Hit> tmpHits;
 
 
-    CJKSegmenter() {
-        this.tmpHits = new LinkedList<Hit>();
-    }
+	CJKSegmenter() {
+		this.tmpHits = new LinkedList<Hit>();
+	}
 
-    @Override
-    public void analyze(AnalyzeContext context) {
-        if (CharacterUtil.CHAR_USELESS != context.getCurrentCharType()) {
+	@Override
+	public void analyze(AnalyzeContext context) {
+		if (CharacterUtil.CHAR_USELESS != context.getCurrentCharType()) {
 
-            //优先处理tmpHits中的hit
-            handleTempHits(context, false);
+			//优先处理tmpHits中的hit
+			handleTempHits(context, false);
 
-            //*********************************
-            //再对当前指针位置的字符进行单字匹配
-            Hit singleCharHit = Dictionary.getSingleton().matchInMainDict(context.getSegmentBuff(), context.getCursor(), 1);
-            if (singleCharHit.isMatch()) {//首字成词
-                //输出当前的词
-                Lexeme newLexeme = new Lexeme(context.getBufferOffset(), context.getCursor(), 1, Lexeme.TYPE_CNWORD);
-                context.addLexeme(newLexeme);
-
-                //同时也是词前缀
-                if (singleCharHit.isPrefix()) {
-                    //前缀匹配则放入hit列表
-                    this.tmpHits.add(singleCharHit);
+			//*********************************
+			//再对当前指针位置的字符进行单字匹配
+			Hit singleCharHit = Dictionary.getSingleton().matchInMainDict(context.getSegmentBuff(), context.getCursor(), 1);
+			if (singleCharHit.isMatch()) {//首字成词
+                //只有当shouldOutputSingleChar返回true时才输出单个汉字
+                if (shouldOutputSingleChar(context.getSegmentBuff(), context.getCursor())) {
+                    //输出当前的词
+                    Lexeme newLexeme = new Lexeme(context.getBufferOffset(), context.getCursor(), 1, Lexeme.TYPE_CNWORD);
+                    context.addLexeme(newLexeme);
                 }
-            } else if (singleCharHit.isPrefix()) {//首字为词前缀
-                //前缀匹配则放入hit列表
-                this.tmpHits.add(singleCharHit);
-            }
+
+				//同时也是词前缀
+				if (singleCharHit.isPrefix()) {
+					//前缀匹配则放入hit列表
+					this.tmpHits.add(singleCharHit);
+				}
+			} else if (singleCharHit.isPrefix()) {//首字为词前缀
+				//前缀匹配则放入hit列表
+				this.tmpHits.add(singleCharHit);
+			}
 
 
-        } else {
-            //遇到CHAR_USELESS字符
-            //清空队列
-            this.tmpHits.clear();
-        }
+		} else {
+			//遇到CHAR_USELESS字符
+			//清空队列
+			this.tmpHits.clear();
+		}
 
-        //判断缓冲区是否已经读完
-        if (context.isBufferConsumed()) {
-            //清空队列
-            handleTempHits(context, true);
-        }
+		//判断缓冲区是否已经读完
+		if (context.isBufferConsumed()) {
+			//清空队列
+			handleTempHits(context, true);
+		}
 
-        //判断是否锁定缓冲区
-        if (this.tmpHits.size() == 0) {
-            context.unlockBuffer(SEGMENTER_NAME);
+		//判断是否锁定缓冲区
+		if (this.tmpHits.size() == 0) {
+			context.unlockBuffer(SEGMENTER_NAME);
 
-        } else {
-            context.lockBuffer(SEGMENTER_NAME);
-        }
+		} else {
+			context.lockBuffer(SEGMENTER_NAME);
+		}
+	}
+
+	private void handleTempHits(AnalyzeContext context, boolean end) {
+		if (!this.tmpHits.isEmpty()) {
+			//处理词段队列
+			Hit[] tmpArray = this.tmpHits.toArray(new Hit[this.tmpHits.size()]);
+			for (Hit hit : tmpArray) {
+				hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
+				if (hit.isMatch()) {
+					if (context.getCursor() >= hit.getBegin()) {
+                        int length = context.getCursor() - hit.getBegin() + 1;
+                        //对于长度为1的词元，只有在命中词典或中文单位词典时才输出
+                        if (length > 1 || shouldOutputSingleChar(context.getSegmentBuff(), hit.getBegin())) {
+                            //输出当前的词
+                            Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), length, Lexeme.TYPE_CNWORD);
+                            context.addLexeme(newLexeme);
+                        }
+					}
+
+					if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
+						this.tmpHits.remove(hit);
+					}
+
+				} else if (hit.isUnmatch()) {
+					//hit不是词，移除
+					this.tmpHits.remove(hit);
+				}
+			}
+			if (end) {
+				this.tmpHits.clear();
+			}
+		}
+	}
+
+    /**
+     * 判断是否应该输出单个汉字
+     *
+     * @param charArray 字符缓冲区
+     * @param offset    偏移量
+     * @return true如果应该输出（命中主词典或中文单位词典），false如果不应该输出
+     */
+    private boolean shouldOutputSingleChar(char[] charArray, int offset) {
+        // 检查是否命中主词典或中文单位词典
+        return Dictionary.getSingleton().matchInMainDict(charArray, offset, 1).isMatch() ||
+                Dictionary.getSingleton().matchInQuantifierDict(charArray, offset, 1).isMatch();
     }
 
-    private void handleTempHits(AnalyzeContext context, boolean end) {
-        if (!this.tmpHits.isEmpty()) {
-            //处理词段队列
-            Hit[] tmpArray = this.tmpHits.toArray(new Hit[this.tmpHits.size()]);
-            for (Hit hit : tmpArray) {
-                hit = Dictionary.getSingleton().matchWithHit(context.getSegmentBuff(), context.getCursor(), hit);
-                if (hit.isMatch()) {
-                    if (context.getCursor() >= hit.getBegin()) {
-                        //输出当前的词
-                        Lexeme newLexeme = new Lexeme(context.getBufferOffset(), hit.getBegin(), context.getCursor() - hit.getBegin() + 1, Lexeme.TYPE_CNWORD);
-                        context.addLexeme(newLexeme);
-                    }
-
-                    if (!hit.isPrefix()) {//不是词前缀，hit不需要继续匹配，移除
-                        this.tmpHits.remove(hit);
-                    }
-
-                } else if (hit.isUnmatch()) {
-                    //hit不是词，移除
-                    this.tmpHits.remove(hit);
-                }
-            }
-            if (end) {
-                this.tmpHits.clear();
-            }
-        }
-    }
-
-    @Override
-    public void reset() {
-        //清空队列
-        this.tmpHits.clear();
-    }
+	@Override
+	public void reset() {
+		//清空队列
+		this.tmpHits.clear();
+	}
 
 }

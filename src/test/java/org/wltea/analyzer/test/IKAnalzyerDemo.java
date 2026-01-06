@@ -27,6 +27,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
@@ -36,46 +37,52 @@ import java.io.StringReader;
 /**
  * 使用IKAnalyzer进行分词的演示
  * 2012-10-22
- *
  */
 public class IKAnalzyerDemo {
 
-    public static void main(String[] args) {
-        //构建IK分词器
-        Analyzer analyzer = new IKAnalyzer(false);
+	public static void main(String[] args) {
+		//构建IK分词器
+		Analyzer analyzer = new IKAnalyzer(true);
 
-        //获取Lucene的TokenStream对象
-        TokenStream ts = null;
-        try {
-            ts = analyzer.tokenStream("myfield", new StringReader("政治传记关于曹家沟道路规则调整的批复T450 SKU-112 80KG 365天 八小时 联想2000 粤TB01235"));
-            //获取词元位置属性
-            OffsetAttribute offset = ts.addAttribute(OffsetAttribute.class);
-            //获取词元文本属性
-            CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
-            //获取词元文本属性
-            TypeAttribute type = ts.addAttribute(TypeAttribute.class);
+		displayAllToken(analyzer);
 
-            //重置TokenStream（重置StringReader）
-            ts.reset();
-            //迭代获取分词结果
-            while (ts.incrementToken()) {
-                System.out.println(offset.startOffset() + " - " + offset.endOffset() + " : " + term.toString() + " | " + type.type());
-            }
-            //关闭TokenStream（关闭StringReader）
-            ts.end();   // Perform end-of-stream operations, e.g. set the final offset.
+	}
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            //释放TokenStream的所有资源
-            if (ts != null) {
-                try {
-                    ts.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+	private static void displayAllToken(Analyzer analyzer) {
+		//获取Lucene的TokenStream对象
+		TokenStream tokenStream = null;
+		try {
+			tokenStream = analyzer.tokenStream("myfield", new StringReader("批复91-1-1杨晓文、王曼芹足球教练结婚申请书蓝瘦政治传记关于曹家沟道路规则调整的新春晚会批复T450 SKU-112 80KG 365天 八小时 联想2000 粤TB01235"));
+			//获取词与词之间的位置增量
+			PositionIncrementAttribute positionIncrement = tokenStream.getAttribute(PositionIncrementAttribute.class);
+			//获取词元位置属性
+			OffsetAttribute offset = tokenStream.addAttribute(OffsetAttribute.class);
+			//获取词元文本属性
 
-    }
+			CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+			//获取词元文本属性
+			TypeAttribute type = tokenStream.addAttribute(TypeAttribute.class);
+
+			//重置TokenStream（重置StringReader）
+			tokenStream.reset();
+			//迭代获取分词结果
+			while (tokenStream.incrementToken()) {
+				System.out.println(positionIncrement.getPositionIncrement() + ":[" + offset.startOffset() + "~" + offset.endOffset() + "] : " + term.toString() + " | " + type.type());
+			}
+			//关闭TokenStream（关闭StringReader）
+			tokenStream.end();   // Perform end-of-stream operations, e.g. set the final offset.
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			//释放TokenStream的所有资源
+			if (tokenStream != null) {
+				try {
+					tokenStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
